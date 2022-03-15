@@ -1,0 +1,3 @@
+[submodule "draw_rotated_things"]
+	path = draw_rotated_things
+	url = https://github.com/szaguldo-kamaz/draw_rotated_things
