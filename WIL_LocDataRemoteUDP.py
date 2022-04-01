@@ -13,8 +13,8 @@ import socket, select, struct
 
 class WILLocDataRemoteUDP(WILLocDataBase):
 
-    def __init__(self, roomsize, verbose=False):
-        WILLocDataBase.__init__(self, roomsize, verbose);
+    def __init__(self, roomsize):
+        WILLocDataBase.__init__(self, roomsize);
         bindip = "0.0.0.0";
         portno_trackerinfo = 60003;
         self.sock_trackerinfo = socket.socket(socket.AF_INET, socket.SOCK_DGRAM);
