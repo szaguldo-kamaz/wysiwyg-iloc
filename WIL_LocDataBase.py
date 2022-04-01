@@ -48,7 +48,7 @@ class WILLocDataBase:
             return self.wldbobj.set_tracker_rotaxis_by_serial(self.serial, rotaxisno);
 
 
-    def __init__(self, roomsize, verbose=False):
+    def __init__(self, roomsize):
         self.roomsize = roomsize;
         self.roomcenter = [ roomsize[0] / 2, roomsize[1] / 2 ];
         self.tracked_objects = {};
@@ -62,6 +62,9 @@ class WILLocDataBase:
         self.swapx = False;
         self.swapy = False;
         self.reverse_rotdir = False;
+        self.verbose = False;
+
+    def set_verbose(self, verbose):
         self.verbose = verbose;
 
     def polar2rect(self, r, theta):
@@ -125,8 +128,10 @@ class WILLocDataBase:
             self.swapx = bool(int(calibdata[0].split()[13]));
             self.swapy = bool(int(calibdata[0].split()[15]));
             self.reverse_rotdir = bool(int(calibdata[0].split()[17]));
-            if self.verbose > 0:
-                print("Setting these calibration parameters: offx: %s, offy: %s, offz: %s, offrot: %s/%s pixrat: %d swapx: %d swapy: %d"%(self.xoffset, self.yoffset, self.zoffset, self.rotoffset_world, math.degrees(self.rotoffset_world), self.rotoffset_obj, math.degrees(self.rotoffset_obj), self.pixelratio, self.swapx, self.swapy, self.reverse_rotdir));
+            if self.verbose:
+                print("Setting these calibration parameters: offx: %s, offy: %s, offz: %s, worrot: %s/%s objrot: %s/%s pixrat: %d swapx: %d swapy: %d revrot: %d"%
+                    (self.xoffset, self.yoffset, self.zoffset, self.rotoffset_world, math.degrees(self.rotoffset_world),
+                     self.rotoffset_obj, math.degrees(self.rotoffset_obj), self.pixelratio, self.swapx, self.swapy, self.reverse_rotdir));
             return True
         except:
             return False
