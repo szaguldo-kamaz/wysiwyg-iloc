@@ -134,12 +134,13 @@ class WILLocDataBase:
     def get_calibration_data(self):
         return [ self.xoffset, self.yoffset, self.zoffset, self.rotoffset_world, self.rotoffset_obj, self.pixelratio, self.swapx, self.swapy, self.reverse_rotdir ]
 
-    def checkallposes(self):
+    def all_poses_valid(self):
         self.all_tracked_objs_have_valid_pose = True;
         for trackobj in self.tracked_objects.keys():
             if self.tracked_objects[trackobj]['pose'] == None:
                 self.all_tracked_objs_have_valid_pose = False;
                 break
+        return self.all_tracked_objs_have_valid_pose
 
     def get_raw_position(self, tracker_serial):
         return self.tracked_objects[tracker_serial]['pose'][0:3];
