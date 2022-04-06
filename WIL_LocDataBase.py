@@ -78,17 +78,23 @@ class WILLocDataBase:
     def quattoeuler(self, q):
         try:
             # q = [ w, x, y, z ]
+            t2 = 2 * (q[0] * q[2] - q[3] * q[1]);
+            if t2 > 1.0:
+                if t2 > 1.01:
+                    print("T2over: ", t2);
+                t2 = 1.0;
+            if t2 < -1.0:
+                if t2 < -1.01:
+                    print("T2below: ", t2);
+                t2 = -1.0;
+
             euler = [ math.atan2(2 * (q[0] * q[1] + q[2] * q[3]), 1 - 2 * (q[1] * q[1] + q[2] * q[2])),
-                      math.asin (2 * (q[0] * q[2] - q[3] * q[1])),
+                      t2,
                       math.atan2(2 * (q[0] * q[3] + q[1] * q[2]), 1 - 2 * (q[2] * q[2] + q[3] * q[3])) ];
             return euler
         except:
             print("DEBUG BAD quat: ", q);
-            t2 = 2 * (q[0] * q[2] - q[3] * q[1]);
-#            max(min(t2, 1.0), -1.0);
-            print("T2: ", t2);
             return False
-
 
     def set_swapx(self, swapx):
         self.swapx = swapx;
