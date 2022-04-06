@@ -28,8 +28,8 @@ class WILLocDataROS(WILLocDataBase):
             return self.pose;
 
 
-    def __init__(self, roomsize, verbose=False):
-        WILLocDataBase.__init__(self, roomsize, verbose);
+    def __init__(self, roomsize):
+        WILLocDataBase.__init__(self, roomsize);
         self.ros_subscribers = {};
         rospy.init_node('wil');
 

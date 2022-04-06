@@ -13,8 +13,8 @@ from WIL_LocDataBase import WILLocDataBase
 
 class WILLocDataSteamVR(WILLocDataBase):
 
-    def __init__(self, roomsize, verbose=False):
-        WILLocDataBase.__init__(self, roomsize, verbose);
+    def __init__(self, roomsize):
+        WILLocDataBase.__init__(self, roomsize);
         self.wil_triadopenvr = triad_openvr.triad_openvr.triad_openvr();
         self.wil_triadopenvr.print_discovered_objects();
         self.devname_to_serial = {};

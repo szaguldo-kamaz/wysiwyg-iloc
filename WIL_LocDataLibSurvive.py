@@ -12,8 +12,8 @@ from WIL_LocDataBase import WILLocDataBase
 
 class WILLocDataLibSurvive(WILLocDataBase):
 
-    def __init__(self, roomsize, verbose=False):
-        WILLocDataBase.__init__(self, roomsize, verbose);
+    def __init__(self, roomsize):
+        WILLocDataBase.__init__(self, roomsize);
         self.ctx = pysurvive.init();
         if self.ctx is None:
             print("WILLocDataLibSurvive: FATAL: Cannot init pysurvive context!");
