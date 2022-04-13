@@ -41,6 +41,12 @@ class WILLocDataSteamVR(WILLocDataBase):
 #            if buttons['ulButtonPressed'] != 0:
 #                print("BUTTONS:",buttons['ulButtonPressed']);
 #            print(buttons);
+
+            pose_euler = self.wil_triadopenvr.devices[self.serial_to_devname[trackerserial]].get_pose_euler();
+            if pose_euler != None:
+                [x, y, z, orx, orz, ory] = pose_euler;
+                self.tracked_objects[trackerserial]['pose_euler_deg'] = [x, z, y, orx, orz, ory];
+
             try:  # sometimes get_pose fails, with math errors (divby0, etc.)...
                 posequat = self.wil_triadopenvr.devices[self.serial_to_devname[trackerserial]].get_pose_quaternion();
 #                [x, y, z, qx, qy, qz, qw] = self.wil_triadopenvr.devices[self.serial_to_devname[trackerserial]].get_pose_quaternion();
@@ -69,7 +75,7 @@ class WILLocDataSteamVR(WILLocDataBase):
             print("WILLocDataSteamVR: FATAL: Tracker with serial %s not found! Check SteamVR?"%(trackerserial));
             sys.exit(0);
         if trackerserial not in self.tracked_objects.keys():
-            self.tracked_objects[trackerserial] = {'timecode':0, 'pose':None, 'button':0};
+            self.tracked_objects[trackerserial] = {'timecode':0, 'pose':None, 'pose_euler_deg':None, 'button':0};
             return self.WILTracker(trackerserial, self);
         else:
             print("WILLocDataSteamVR: WARN: Tracker with serial %s already added!"%(trackerserial));
