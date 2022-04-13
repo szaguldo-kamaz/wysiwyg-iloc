@@ -157,13 +157,13 @@ class WILLocDataBase:
         return self.tracked_objects[tracker_serial]['pose'][0:3];
 
     def get_raw_orientation_quat(self, tracker_serial):
-        return self.tracked_objects[tracker_serial]['pose'][3:8];
+        return self.tracked_objects[tracker_serial]['pose'][3:7];
 
     def get_raw_orientation_euler_radians(self, tracker_serial):
-        return self.quattoeuler(self.tracked_objects[tracker_serial]['pose'][3:8]);
+        return self.quattoeuler(self.tracked_objects[tracker_serial]['pose'][3:7]);
 
     def get_raw_orientation_euler_degrees(self, tracker_serial):
-        return [ math.degrees(radian) for radian in self.quattoeuler(self.tracked_objects[tracker_serial]['pose'][3:8]) ];
+        return [ math.degrees(radian) for radian in self.quattoeuler(self.tracked_objects[tracker_serial]['pose'][3:7]) ];
 
     def get_position(self, tracker_serial):
         rawpos = self.get_raw_position(tracker_serial);
@@ -183,7 +183,7 @@ class WILLocDataBase:
         return [ trackpos[0] * self.pixelratio, trackpos[1] * self.pixelratio ];
 
     def get_orientation_radians(self, tracker_serial):
-        rot_radians = self.quattoeuler(self.tracked_objects[tracker_serial]['pose'][3:8]);
+        rot_radians = self.quattoeuler(self.tracked_objects[tracker_serial]['pose'][3:7]);
         # rot angle -180-+180 -> 0-360
         angle = rot_radians[self.tracked_objects[tracker_serial]['rotaxis']] + math.pi - self.rotoffset_obj;
         if angle >= 2*math.pi:
