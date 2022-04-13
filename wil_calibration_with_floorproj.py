@@ -205,31 +205,31 @@ while True:
                     color=trackedobjs[trackername]['color'], font=statusfont);
 
 
-    if event in ["KP_Add:86", "plus:21", "equal:21"]:
+    if event in ["KP_Add:86", "plus:21", "equal:21", "+"]:
         pixelratio += 5;
         needoffsetupdate = True;
 
-    if event in ["KP_Subtract:82", "underscore:20", "minus:20"]:
+    if event in ["KP_Subtract:82", "underscore:20", "minus:20", "-"]:
         pixelratio -= 5;
         needoffsetupdate = True;
 
-    if event in ["KP_Divide:106", "x:53"]:
+    if event in ["KP_Divide:106", "x:53", "x"]:
         swapx = not swapx;
         needoffsetupdate = True;
 
-    if event in ["KP_Multiply:63", "y:29"]:
+    if event in ["KP_Multiply:63", "y:29", "y"]:
         swapy = not swapy;
         needoffsetupdate = True;
 
-    if event in ["r:27"]:
+    if event in ["r:27", "r"]:
         reverse_rotdir = not reverse_rotdir;
         needoffsetupdate = True;
 
-    if event in (sg.WIN_CLOSED, 'Escape:9'):
+    if event in (sg.WIN_CLOSED, 'Escape:9', 'Escape:27'):
         print("EXIT: Not saving calibration data!");
         break
 
-    if event in ("Return:36", "KP_Enter:104"):
+    if event in ("Return:36", "KP_Enter:104", "\n", "\r"):
         calibdata = "xoff: %03.3f yoff: %03.3f zoff: %03.3f rotoff_w: %05.1f rotoff_o: %05.1f pixrat: %d swapx: %d swapy: %d revrot: %d\r\n"%(xoffset, yoffset, zoffset, math.degrees(orientoffset_world), math.degrees(orientoffset_obj), pixelratio, swapx, swapy, reverse_rotdir);
         print("Saving calibration parameters: ", calibdata);
         calibdatafile = open(calibdata_filename_out, "w");
@@ -253,7 +253,7 @@ while True:
         dragpos = [ -1, -1 ];
         needoffsetupdate = True;
 
-    if event == '+SCRDN+':
+    if event in ("+SCRDN+", "MouseWheel:Down"):
         if dragpos == [ -1, -1 ]:
             orientoffset_world -= math.radians(0.5);
             if orientoffset_world < 0:
@@ -264,7 +264,7 @@ while True:
                 orientoffset_obj = math.radians(359.5);
         needoffsetupdate = True;
 
-    if event == '+SCRUP+':
+    if event in ("+SCRUP+", "MouseWheel:Up"):
         if dragpos == [ -1, -1 ]:
             orientoffset_world += math.radians(0.5);
             if orientoffset_world >= (2*math.pi):
