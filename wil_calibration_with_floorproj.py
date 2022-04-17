@@ -230,7 +230,7 @@ while True:
         break
 
     if event in ("Return:36", "KP_Enter:104", "\n", "\r"):
-        calibdata = "xoff: %03.3f yoff: %03.3f zoff: %03.3f rotoff_w: %05.1f rotoff_o: %05.1f pixrat: %d swapx: %d swapy: %d revrot: %d\r\n"%(xoffset, yoffset, zoffset, math.degrees(orientoffset_world), math.degrees(orientoffset_obj), pixelratio, swapx, swapy, reverse_rotdir);
+        calibdata = "xoff: %03.3f yoff: %03.3f zoff: %03.3f rotoff_w: %05.1f rotoff_o: %05.1f pixrat: %d swapx: %d swapy: %d revrot: %d%c%c"%(xoffset, yoffset, zoffset, math.degrees(orientoffset_world), math.degrees(orientoffset_obj), pixelratio, swapx, swapy, reverse_rotdir, 0x0D, 0x0A);
         print("Saving calibration parameters: ", calibdata);
         calibdatafile = open(calibdata_filename_out, "w");
         calibdatafile.write(calibdata);
