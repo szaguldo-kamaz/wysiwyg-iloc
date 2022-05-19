@@ -1,10 +1,12 @@
 # What-You-See-Is-What-You-Get Indoor Localization (WIL)
 
+![overview](https://user-images.githubusercontent.com/86873213/169280013-9fa82b3e-b89c-4a99-99f2-8e70d9d7ad17.gif)
+
 Here's a simple demonstration where a human and a mobile robot ([Vstone MegaRover 3.0](https://github.com/szaguldo-kamaz/mecanumcommander)) are moving around and two non-moving objects are placed on the floor, while their sensed poses are being projected onto them.
 
 ![move](https://user-images.githubusercontent.com/86873213/169096483-7b093dd0-dec5-4b11-aea6-27626fd298e0.gif)
 
-For gathering the raw pose data HTC Vive trackers were used. The WIL system transforms the raw pose data to be aligned with the real space (previously calibrated) and generates the image to be projected. Raw pose data sources supported: SteamVR, [libsurvive](https://github.com/cntools/libsurvive), ROS messages, raw UDP packets (see "RemoteUDP" files). See *wil_config.py* for configuring which one to use. IDs of the trackers (LHR-xxxxxxxx) you want to use should be listed in *wil_config.py*.
+For gathering the raw pose data HTC Vive trackers were used. The WIL system transforms the raw pose data to be aligned with the real space (previously calibrated) and generates the image to be projected. Raw pose data sources supported: SteamVR, [libsurvive](https://github.com/cntools/libsurvive), ROS messages, UDP packets (see "RemoteUDP" files). See *wil_config.py* for configuring which one to use. IDs of the trackers (LHR-xxxxxxxx) you want to use should be listed in *wil_config.py*. Vive controllers should also work.
 
 Calibration is very simple and easy, just run *wil_calibration_with_floorproj.py*, and you should see something similar:
 
