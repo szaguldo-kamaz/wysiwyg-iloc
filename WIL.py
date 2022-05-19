@@ -7,10 +7,6 @@
 #
 
 from wil_config            import wil_config
-from WIL_LocDataLibSurvive import WILLocDataLibSurvive
-from WIL_LocDataSteamVR    import WILLocDataSteamVR
-from WIL_LocDataROS        import WILLocDataROS
-from WIL_LocDataRemoteUDP  import WILLocDataRemoteUDP
 
 
 class WIL:
@@ -24,12 +20,16 @@ class WIL:
         self.verbose = False;
 
         if   locdatasource == wil_config.LOCDATA_SOURCE_LIBSURVIVE:
+            from WIL_LocDataLibSurvive import WILLocDataLibSurvive
             self.locdata = WILLocDataLibSurvive(playareapixels);
         elif locdatasource == wil_config.LOCDATA_SOURCE_STEAMVR:
+            from WIL_LocDataSteamVR    import WILLocDataSteamVR
             self.locdata = WILLocDataSteamVR(playareapixels);
         elif locdatasource == wil_config.LOCDATA_SOURCE_ROS:
+            from WIL_LocDataROS        import WILLocDataROS
             self.locdata = WILLocDataROS(playareapixels);
         elif locdatasource == wil_config.LOCDATA_SOURCE_REMOTEUDP:
+            from WIL_LocDataRemoteUDP  import WILLocDataRemoteUDP
             self.locdata = WILLocDataRemoteUDP(playareapixels);
         else:
             print("Unknown LocData_source was specified. Exiting.");
