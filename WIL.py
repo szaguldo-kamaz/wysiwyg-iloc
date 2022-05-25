@@ -31,6 +31,9 @@ class WIL:
         elif locdatasource == wil_config.LOCDATA_SOURCE_REMOTEUDP:
             from WIL_LocDataRemoteUDP  import WILLocDataRemoteUDP
             self.locdata = WILLocDataRemoteUDP(playareapixels);
+        elif locdatasource == wil_config.LOCDATA_SOURCE_FILE:
+            from WIL_LocDataFile       import WILLocDataFile
+            self.locdata = WILLocDataFile(playareapixels);
         else:
             print("Unknown LocData_source was specified. Exiting.");
             sys.exit(1);  # should be an exception. maybe later...

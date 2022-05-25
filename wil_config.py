@@ -12,6 +12,7 @@ class wil_config:
     LOCDATA_SOURCE_STEAMVR    = 2;
     LOCDATA_SOURCE_ROS        = 3;
     LOCDATA_SOURCE_REMOTEUDP  = 4;
+    LOCDATA_SOURCE_FILE       = 5;
 
     locdata_source = LOCDATA_SOURCE_STEAMVR;
 
