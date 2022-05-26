@@ -122,19 +122,16 @@ for tracker in wilobj.get_tracker_names():
     trackedobjs[tracker]['orideg']      = 0;
     trackedobjs[tracker]['orirad']      = 0;
     trackedobjs[tracker]['plotobj']     = 0;
-    trackedobjs[tracker]['plotsize']    = plotsize_small;
+    trackedobjs[tracker]['plotsize']    = wil_config.trackers[tracker]['radius'];
     trackedobjs[tracker]['plotoriobj']      = 0;
     trackedobjs[tracker]['plotorimarkobj']  = 0;
     trackedobjs[tracker]['plotlabelobj']    = 0;
     trackedobjs[tracker]['plotlabeloffset'] = 50;
     trackedobjs[tracker]['plotlabeltext']   = wil_config.trackers[tracker]['labeltext'];
     trackedobjs[tracker]['color']           = wil_config.trackers[tracker]['color'];
-
-#trackedobjs[tracker]['plotsize'] = plotsize_small;
-#robotpos_plotsize       = 80;
-#toypos_plotsize         = 35;
-#ownerpos_plotsize       = 110;
-#strangerpos_plotsize    = 35;
+#    trackedobjs[tracker]['fillcolor']       = wil_config.trackers[tracker]['color'];
+    trackedobjs[tracker]['fillcolor']       = None;
+    trackedobjs[tracker]['linewidth']       = 7;
 
 dragpos = [ -1, -1 ];
 needoffsetupdate = True;
@@ -192,7 +189,7 @@ while True:
                     trackedobjs[trackername]['posraw'][0], trackedobjs[trackername]['posraw'][1], trackedobjs[trackername]['posraw'][2],
                     trackedobjs[trackername]['oriraw'][2]);
 
-            trackedobjs[trackername]['plotobj']        = graph.draw_circle(trackedobjs[trackername]['pospixel'], trackedobjs[trackername]['plotsize'], line_color=trackedobjs[trackername]['color'], fill_color=trackedobjs[trackername]['color']);
+            trackedobjs[trackername]['plotobj']        = graph.draw_circle(trackedobjs[trackername]['pospixel'], trackedobjs[trackername]['plotsize'], line_color=trackedobjs[trackername]['color'], fill_color=trackedobjs[trackername]['fillcolor'], line_width=trackedobjs[trackername]['linewidth']);
             trackedobjs[trackername]['plotoriobj']     = draw_rotated_line(graph,
                     [ [ trackedobjs[trackername]['pospixel'][0], trackedobjs[trackername]['pospixel'][1] - trackedobjs[trackername]['plotsize']*2 ], 
                       [ trackedobjs[trackername]['pospixel'][0], trackedobjs[trackername]['pospixel'][1] + trackedobjs[trackername]['plotsize']*2 ] ], 
