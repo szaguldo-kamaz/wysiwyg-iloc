@@ -172,10 +172,10 @@ while True:
             trackedobjs[trackername]['pospixel'][0] = trackedobjs[trackername]['pospixel'][0] + wil_config.playareapixels[0]/2;
             trackedobjs[trackername]['pospixel'][1] = trackedobjs[trackername]['pospixel'][1] + wil_config.playareapixels[1]/2;
 
-            if trackedobjs[trackername]['pospixel'][1] > (wil_config.playareapixels[1]-80):
-                trackedobjs[trackername]['labeloffset'] = -70;
+            if trackedobjs[trackername]['pospixel'][1] < trackedobjs[trackername]['plotsize'] + 80:
+                trackedobjs[trackername]['plotlabeloffset'] = trackedobjs[trackername]['plotsize'] + 40;
             else:
-                trackedobjs[trackername]['labeloffset'] = 50;
+                trackedobjs[trackername]['plotlabeloffset'] = -trackedobjs[trackername]['plotsize'] - 40;
 
             graph.delete_figure(trackedobjs[trackername]['plotobj']);
             graph.delete_figure(trackedobjs[trackername]['plotoriobj']);
