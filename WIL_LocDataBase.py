@@ -125,21 +125,28 @@ class WILLocDataBase:
             if len(calibdata) != 1:
                 print("Something is wrong with the data format %s! Should be only 1 line! Exiting..."%(calibdata_filename));
                 sys.exit(1);
-            self.xoffset = float(calibdata[0].split()[1]);
-            self.yoffset = float(calibdata[0].split()[3]);
-            self.zoffset = float(calibdata[0].split()[5]);
-            self.rotoffset_world = math.radians(float(calibdata[0].split()[7]));
-            self.rotoffset_obj   = math.radians(float(calibdata[0].split()[9]));
-            self.pixelratio = int(calibdata[0].split()[11]);
-            self.swapx = bool(int(calibdata[0].split()[13]));
-            self.swapy = bool(int(calibdata[0].split()[15]));
-            self.reverse_rotdir = bool(int(calibdata[0].split()[17]));
+
+            xoffset = float(calibdata[0].split()[1]);
+            yoffset = float(calibdata[0].split()[3]);
+            zoffset = float(calibdata[0].split()[5]);
+            rotoffset_world = math.radians(float(calibdata[0].split()[7]));
+            rotoffset_obj   = math.radians(float(calibdata[0].split()[9]));
+            pixelratio = int(calibdata[0].split()[11]);
+            swapx = bool(int(calibdata[0].split()[13]));
+            swapy = bool(int(calibdata[0].split()[15]));
+            reverse_rotdir = bool(int(calibdata[0].split()[17]));
+
             if self.verbose:
                 print("Setting these calibration parameters: offx: %s, offy: %s, offz: %s, worrot: %s/%s objrot: %s/%s pixrat: %d swapx: %d swapy: %d revrot: %d"%
                     (self.xoffset, self.yoffset, self.zoffset, self.rotoffset_world, math.degrees(self.rotoffset_world),
                      self.rotoffset_obj, math.degrees(self.rotoffset_obj), self.pixelratio, self.swapx, self.swapy, self.reverse_rotdir));
+
+            self.calibrate(xoffset, yoffset, zoffset, rotoffset_world, rotoffset_obj, pixelratio, swapx, swapy, reverse_rotdir);
+
             return True
+
         except:
+
             return False
 
     def get_calibration_data(self):
