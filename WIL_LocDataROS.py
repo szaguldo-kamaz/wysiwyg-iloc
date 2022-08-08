@@ -49,6 +49,6 @@ class WILLocDataROS(WILLocDataBase):
 #            msgtype = Pose;
             msgtype = PoseWithCovarianceStamped;
             self.ros_subscribers[trackerserial] = self.WILLocDataROSsubscriber(topic, msgtype);
-            self.tracked_objects[trackerserial] = {'timecode':0, 'pose':None, 'button':0};
+            self.tracked_objects[trackerserial] = {'timecode':0, 'pose':None, 'pose_euler_deg':None, 'button':0};
             self.all_tracked_objs_have_valid_pose = False;
             return self.WILTracker(trackerserial, self);

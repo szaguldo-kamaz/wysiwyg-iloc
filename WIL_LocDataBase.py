@@ -219,3 +219,10 @@ class WILLocDataBase:
 
     def set_tracker_rotaxis_by_serial(self, tracker_serial, rotaxisno):
         self.tracked_objects[tracker_serial]['rotaxis'] = rotaxisno;
+
+    # ROS and SteamVR overrides this
+    def add_tracker_by_serial(self, trackerserial):
+        if trackerserial not in self.tracked_objects.keys():
+            self.tracked_objects[trackerserial] = {'timecode':0, 'pose':None, 'pose_euler_deg':None, 'button':0};
+            self.all_tracked_objs_have_valid_pose = False;
+            return self.WILTracker(trackerserial, self);

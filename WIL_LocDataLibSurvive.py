@@ -27,12 +27,6 @@ class WILLocDataLibSurvive(WILLocDataBase):
     def update(self):
         return pysurvive.poll(self.ctx);
 
-    def add_tracker_by_serial(self, trackerserial):
-        if trackerserial not in self.tracked_objects.keys():
-            self.tracked_objects[trackerserial] = {'timecode':0, 'pose':None, 'button':0};
-            self.all_tracked_objs_have_valid_pose = False;
-            return self.WILTracker(trackerserial, self);
-
     def pose_func(self, obj, timecode, pose):
         trackerserial = obj.contents.serial_number.decode('utf8');
         if trackerserial not in self.tracked_objects.keys():

@@ -59,10 +59,3 @@ class WILLocDataRemoteUDP(WILLocDataBase):
             sockreadable, _, _ = select.select([self.sock_trackerinfo], [], [], 0);
 
         return 0
-
-
-    def add_tracker_by_serial(self, trackerserial):
-        if trackerserial not in self.tracked_objects.keys():
-            self.tracked_objects[trackerserial] = {'timecode':0, 'pose':None, 'button':0};
-            self.all_tracked_objs_have_valid_pose = False;
-            return self.WILTracker(trackerserial, self);
