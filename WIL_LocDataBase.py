@@ -53,11 +53,11 @@ class WILLocDataBase:
         self.roomcenter = [ roomsize[0] / 2, roomsize[1] / 2 ];
         self.tracked_objects = {};
         self.all_tracked_objs_have_valid_pose = False;
-        self.xoffset = 0.0;
-        self.yoffset = 0.0;
-        self.zoffset = 0.0;
+        self.xoffset_world = 0.0;
+        self.yoffset_world = 0.0;
+        self.zoffset_world = 0.0;
         self.rotoffset_world = 0.0;
-        self.rotoffset_obj = 0.0;
+        self.rotoffset_trackerself = 0.0;
         self.pixelratio = 200;
         self.swapx = False;
         self.swapy = False;
@@ -105,12 +105,12 @@ class WILLocDataBase:
     def set_reverserotdir(self, reverse_rotdir):
         self.reverse_rotdir = reverserotdir;
 
-    def calibrate(self, xoffset, yoffset, zoffset, rotoffset_world, rotoffset_obj, pixelratio, swapx, swapy, reverse_rotdir):
-        self.xoffset = xoffset;
-        self.yoffset = yoffset;
-        self.zoffset = zoffset;
+    def calibrate_world(self, xoffset_world, yoffset_world, zoffset_world, rotoffset_world, rotoffset_trackerself, pixelratio, swapx, swapy, reverse_rotdir):
+        self.xoffset_world = xoffset_world;
+        self.yoffset_world = yoffset_world;
+        self.zoffset_world = zoffset_world;
         self.rotoffset_world = rotoffset_world;
-        self.rotoffset_obj = rotoffset_obj;
+        self.rotoffset_trackerself = rotoffset_trackerself;
         self.pixelratio = pixelratio;
         self.swapx = swapx;
         self.swapy = swapy;
@@ -126,11 +126,11 @@ class WILLocDataBase:
                 print("Something is wrong with the data format %s! Should be only 1 line! Exiting..."%(calibdata_filename));
                 sys.exit(1);
 
-            xoffset = float(calibdata[0].split()[1]);
-            yoffset = float(calibdata[0].split()[3]);
-            zoffset = float(calibdata[0].split()[5]);
+            xoffset_world = float(calibdata[0].split()[1]);
+            yoffset_world = float(calibdata[0].split()[3]);
+            zoffset_world = float(calibdata[0].split()[5]);
             rotoffset_world = math.radians(float(calibdata[0].split()[7]));
-            rotoffset_obj   = math.radians(float(calibdata[0].split()[9]));
+            rotoffset_trackerself   = math.radians(float(calibdata[0].split()[9]));
             pixelratio = int(calibdata[0].split()[11]);
             swapx = bool(int(calibdata[0].split()[13]));
             swapy = bool(int(calibdata[0].split()[15]));
@@ -138,10 +138,10 @@ class WILLocDataBase:
 
             if self.verbose:
                 print("Setting these calibration parameters: offx: %s, offy: %s, offz: %s, worrot: %s/%s objrot: %s/%s pixrat: %d swapx: %d swapy: %d revrot: %d"%
-                    (self.xoffset, self.yoffset, self.zoffset, self.rotoffset_world, math.degrees(self.rotoffset_world),
-                     self.rotoffset_obj, math.degrees(self.rotoffset_obj), self.pixelratio, self.swapx, self.swapy, self.reverse_rotdir));
+                    (self.xoffset_world, self.yoffset_world, self.zoffset_world, self.rotoffset_world, math.degrees(self.rotoffset_world),
+                     self.rotoffset_trackerself, math.degrees(self.rotoffset_trackerself), self.pixelratio, self.swapx, self.swapy, self.reverse_rotdir));
 
-            self.calibrate(xoffset, yoffset, zoffset, rotoffset_world, rotoffset_obj, pixelratio, swapx, swapy, reverse_rotdir);
+            self.calibrate_world(xoffset_world, yoffset_world, zoffset_world, rotoffset_world, rotoffset_trackerself, pixelratio, swapx, swapy, reverse_rotdir);
 
             return True
 
@@ -149,8 +149,8 @@ class WILLocDataBase:
 
             return False
 
-    def get_calibration_data(self):
-        return [ self.xoffset, self.yoffset, self.zoffset, self.rotoffset_world, self.rotoffset_obj, self.pixelratio, self.swapx, self.swapy, self.reverse_rotdir ]
+    def get_calibration_data_world(self):
+        return [ self.xoffset_world, self.yoffset_world, self.zoffset_world, self.rotoffset_world, self.rotoffset_trackerself, self.pixelratio, self.swapx, self.swapy, self.reverse_rotdir ]
 
     def all_poses_valid(self):
         self.all_tracked_objs_have_valid_pose = True;
@@ -188,7 +188,7 @@ class WILLocDataBase:
 #        [r, th] = self.rect2polar(offsetpos[0], offsetpos[1]);
         newth = th - self.rotoffset_world;
         rotatedpos = self.polar2rect(r, newth);
-        offrotpos = [ rotatedpos[0] + self.xoffset, rotatedpos[1] + self.yoffset, rawpos[2] + self.zoffset ];
+        offrotpos = [ rotatedpos[0] + self.xoffset_world, rotatedpos[1] + self.yoffset_world, rawpos[2] + self.zoffset_world ];
         return offrotpos
 
     def get_position_pixel(self, tracker_serial):
@@ -198,7 +198,7 @@ class WILLocDataBase:
     def get_orientation_radians(self, tracker_serial):
         rot_radians = self.get_raw_orientation_euler_radians(tracker_serial);
         # rot angle -180-+180 -> 0-360
-        angle = rot_radians[self.tracked_objects[tracker_serial]['rotaxis']] + math.pi - self.rotoffset_obj;
+        angle = rot_radians[self.tracked_objects[tracker_serial]['rotaxis']] + math.pi - self.rotoffset_trackerself;
         if angle >= 2*math.pi:
             angle = robotangle - 2*math.pi;
         if angle < 0:

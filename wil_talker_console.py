@@ -28,7 +28,6 @@ for trackername in wil_config.trackers.keys():
 wilobj.set_verbose(True);
 
 if wilobj.calibrate_from_file(calibdata_filename):
-    [ xoffset, yoffset, zoffset, orientoffset_world, orientoffset_obj, pixelratio, swapx, swapy, reverse_rotdir ] = wilobj.get_calibration_data();
     print("Calibration data loaded from: %s"%(calibdata_filename));
 else:
     print("Cannot load calibration data from: %s, using default values (no calibration)."%(calibdata_filename));
@@ -54,7 +53,8 @@ while True:
     for trackername in wilobj.get_tracker_names():
         trackerpos  = wilobj.trackers[trackername].get_raw_position();
         trackeroriq = wilobj.trackers[trackername].get_raw_orientation_quat();
-        print("%s(%s) %s %s"%(trackername, wilobj.trackers[trackername].serial, trackerpos, trackeroriq));
+        trackerorie = wilobj.trackers[trackername].get_raw_orientation_euler_degrees();
+        print("%s(%s) %s %s %s"%(trackername, wilobj.trackers[trackername].serial, trackerpos, trackeroriq, trackerorie));
 
     time.sleep(0.01);
 

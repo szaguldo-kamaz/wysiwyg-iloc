@@ -28,7 +28,7 @@ for trackername in wil_config.trackers.keys():
     wilobj.add_tracker(trackername, wil_config.trackers[trackername]['serial']);
     wilobj.trackers[trackername].set_rotaxis(wil_config.trackers[trackername]['rotaxis']);
 
-wilobj.calibrate(0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0);
+wilobj.calibrate_world(0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0);
 
 print("Waiting for all the tracked devices to be actually tracked...");
 while not wilobj.all_poses_valid():

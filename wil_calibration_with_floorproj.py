@@ -4,9 +4,9 @@
 #   Adjust localization sys data to the real environment (using floor projection)
 #
 # Usage:
-#  mouse dragging with left button pressed: adjust x,y offset
+#  mouse dragging with left button pressed: adjust world x, y offset
 #  mouse scrollwheel: adjust world orientation offset
-#  mouse scrollwheel with left button pressed: adjust object orientation offset
+#  mouse scrollwheel with left button pressed: adjust tracker self orientation offset
 #  keys + - : adjust pixratio
 #  keys x y r : toggle swap x, y, rotdir
 #  key Esc : exit without saving calibration parameters
@@ -53,20 +53,20 @@ for trackername in wil_config.trackers.keys():
 
 # try to read previous calibration config data
 if wilobj.calibrate_from_file(calibdata_filename_in):
-    [ xoffset, yoffset, zoffset, orientoffset_world, orientoffset_obj, pixelratio, swapx, swapy, reverse_rotdir ] = wilobj.get_calibration_data();
+    [ xoffset_world, yoffset_world, zoffset_world, orientoffset_world, orientoffset_trackerself, pixelratio, swapx, swapy, reverse_rotdir ] = wilobj.get_calibration_data_world();
     print("Calibration data loaded from: %s"%(calibdata_filename_in));
 else:
     print("Cannot load calibration data from: %s, using default values."%(calibdata_filename_in));
-    xoffset = 0.0;
-    yoffset = 0.0;
-    zoffset = 0.0;
+    xoffset_world = 0.0;
+    yoffset_world = 0.0;
+    zoffset_world = 0.0;
     orientoffset_world = 0.0;
-    orientoffset_obj   = 0.0;
+    orientoffset_trackerself   = 0.0;
     pixelratio = default_pixelratio;
     swapx = default_swapx;
     swapy = default_swapy;
     reverse_rotdir = default_reverse_rotdir;
-    wilobj.calibrate(xoffset, yoffset, zoffset, orientoffset_world, orientoffset_obj, pixelratio, swapx, swapy, reverse_rotdir);
+    wilobj.calibrate_world(xoffset_world, yoffset_world, zoffset_world, orientoffset_world, orientoffset_trackerself, pixelratio, swapx, swapy, reverse_rotdir);
 
 # init gui
 sg.theme('DarkGrey5');
@@ -227,7 +227,7 @@ while True:
         break
 
     if event in ("Return:36", "KP_Enter:104", "\n", "\r"):
-        calibdata = "xoff: %03.3f yoff: %03.3f zoff: %03.3f rotoff_w: %05.1f rotoff_o: %05.1f pixrat: %d swapx: %d swapy: %d revrot: %d\r\n"%(xoffset, yoffset, zoffset, math.degrees(orientoffset_world), math.degrees(orientoffset_obj), pixelratio, swapx, swapy, reverse_rotdir);
+        calibdata = "xoff: %03.3f yoff: %03.3f zoff: %03.3f rotoff_w: %05.1f rotoff_o: %05.1f pixrat: %d swapx: %d swapy: %d revrot: %d\r\n"%(xoffset_world, yoffset_world, zoffset_world, math.degrees(orientoffset_world), math.degrees(orientoffset_trackerself), pixelratio, swapx, swapy, reverse_rotdir);
         print("Saving calibration parameters: ", calibdata);
         calibdatafile = open(calibdata_filename_out, "w", newline="\n");
         calibdatafile.write(calibdata);
@@ -240,8 +240,8 @@ while True:
             dragpos = [ values['-GRAPH-'][0], values['-GRAPH-'][1] ];
         else:
             newdragpos = [ values['-GRAPH-'][0], values['-GRAPH-'][1] ];
-            xoffset += (newdragpos[0] - dragpos[0]) / pixelratio;
-            yoffset += (newdragpos[1] - dragpos[1]) / pixelratio;
+            xoffset_world += (newdragpos[0] - dragpos[0]) / pixelratio;
+            yoffset_world += (newdragpos[1] - dragpos[1]) / pixelratio;
             dragpos = newdragpos;
             needoffsetupdate = True;
 
@@ -256,9 +256,9 @@ while True:
             if orientoffset_world < 0:
                 orientoffset_world = math.radians(359.5);
         else:
-            orientoffset_obj -= math.radians(0.5);
-            if orientoffset_obj < 0:
-                orientoffset_obj = math.radians(359.5);
+            orientoffset_trackerself -= math.radians(0.5);
+            if orientoffset_trackerself < 0:
+                orientoffset_trackerself = math.radians(359.5);
         needoffsetupdate = True;
 
     if event in ("+SCRUP+", "MouseWheel:Up"):
@@ -267,9 +267,9 @@ while True:
             if orientoffset_world >= (2*math.pi):
                 orientoffset_world = 0;
         else:
-            orientoffset_obj += math.radians(0.5);
-            if orientoffset_obj >= (2*math.pi):
-                orientoffset_obj = 0;
+            orientoffset_trackerself += math.radians(0.5);
+            if orientoffset_trackerself >= (2*math.pi):
+                orientoffset_trackerself = 0;
         needoffsetupdate = True;
 
     if needoffsetupdate:
@@ -280,10 +280,10 @@ while True:
         else:               swapy_char = ' ';
         if reverse_rotdir:  revrot_char = '!';
         else:               revrot_char = ' ';
-        offset_text = "Offset: %03.3f%c %03.3f%c %03.3f Rw/Ro:%05.1f/%05.1f%c pixrat: %d"%(xoffset, swapx_char, yoffset, swapy_char, zoffset, math.degrees(orientoffset_world), math.degrees(orientoffset_obj), revrot_char, pixelratio);
+        offset_text = "Offset: %03.3f%c %03.3f%c %03.3f Rw/Ro:%05.1f/%05.1f%c pixrat: %d"%(xoffset_world, swapx_char, yoffset_world, swapy_char, zoffset_world, math.degrees(orientoffset_world), math.degrees(orientoffset_trackerself), revrot_char, pixelratio);
         offset_label = graph.draw_text(offset_text, [320, 20], color='#FFFFFF', font=statusfont);
         needoffsetupdate = False;
-        wilobj.calibrate(xoffset, yoffset, zoffset, orientoffset_world, orientoffset_obj, pixelratio, swapx, swapy, reverse_rotdir);
+        wilobj.calibrate_world(xoffset_world, yoffset_world, zoffset_world, orientoffset_world, orientoffset_trackerself, pixelratio, swapx, swapy, reverse_rotdir);
 
 
 window.close();

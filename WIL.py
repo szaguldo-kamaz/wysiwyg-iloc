@@ -52,14 +52,14 @@ class WIL:
     def get_tracker_serials(self):
         return self.trackers_by_serial.keys();
 
-    def calibrate(self, xoffset, yoffset, zoffset, rotoffset_world, rotoffset_obj, pixelratio, swapx, swapy, reverse_rotdir):
-        self.locdata.calibrate(xoffset, yoffset, zoffset, rotoffset_world, rotoffset_obj, pixelratio, swapx, swapy, reverse_rotdir);
+    def calibrate_world(self, xoffset_world, yoffset_world, zoffset_world, rotoffset_world, rotoffset_trackerself, pixelratio, swapx, swapy, reverse_rotdir):
+        self.locdata.calibrate_world(xoffset_world, yoffset_world, zoffset_world, rotoffset_world, rotoffset_trackerself, pixelratio, swapx, swapy, reverse_rotdir);
 
     def calibrate_from_file(self, calibdata_filename):
         return self.locdata.calibrate_from_file(calibdata_filename);
 
-    def get_calibration_data(self):
-        return self.locdata.get_calibration_data();
+    def get_calibration_data_world(self):
+        return self.locdata.get_calibration_data_world();
 
     def update(self):
         return self.locdata.update();

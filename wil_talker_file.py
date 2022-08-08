@@ -31,7 +31,6 @@ for trackername in wil_config.trackers.keys():
 wilobj.set_verbose(True);
 
 if wilobj.calibrate_from_file(calibdata_filename):
-    [ xoffset, yoffset, zoffset, orientoffset_world, orientoffset_obj, pixelratio, swapx, swapy, reverse_rotdir ] = wilobj.get_calibration_data();
     print("Calibration data loaded from: %s"%(calibdata_filename));
 else:
     print("Cannot load calibration data from: %s, using default values (no calibration)."%(calibdata_filename));
