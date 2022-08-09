@@ -64,12 +64,10 @@ class WILLocDataBase:
             trackpos = self.get_position();
             return [ trackpos[0] * self.wldbobj.pixelratio, trackpos[1] * self.wldbobj.pixelratio ];
 
-###
-
         def get_orientation_radians(self):
             rot_radians = self.get_raw_orientation_euler_radians();
             # rot angle -180-+180 -> 0-360
-            angle = rot_radians[self.rotaxis] + math.pi - self.wldbobj.rotoffset_trackerself;
+            angle = rot_radians[self.rotaxis] + math.pi - self.wldbobj.rotoffset_trackerself_world - self.rotoffset_trackerself_tracker;
             if angle >= 2*math.pi:
                 angle -= 2*math.pi;
             if angle < 0:
@@ -110,7 +108,7 @@ class WILLocDataBase:
         self.yoffset_world = 0.0;
         self.zoffset_world = 0.0;
         self.rotoffset_world = 0.0;
-        self.rotoffset_trackerself = 0.0;
+        self.rotoffset_trackerself_world = 0.0;
         self.pixelratio = 200;
         self.swapx = False;
         self.swapy = False;
@@ -158,12 +156,12 @@ class WILLocDataBase:
     def set_reverserotdir(self, reverse_rotdir):
         self.reverse_rotdir = reverserotdir;
 
-    def calibrate_world(self, xoffset_world, yoffset_world, zoffset_world, rotoffset_world, rotoffset_trackerself, pixelratio, swapx, swapy, reverse_rotdir):
+    def calibrate_world(self, xoffset_world, yoffset_world, zoffset_world, rotoffset_world, rotoffset_trackerself_world, pixelratio, swapx, swapy, reverse_rotdir):
         self.xoffset_world = xoffset_world;
         self.yoffset_world = yoffset_world;
         self.zoffset_world = zoffset_world;
         self.rotoffset_world = rotoffset_world;
-        self.rotoffset_trackerself = rotoffset_trackerself;
+        self.rotoffset_trackerself_world = rotoffset_trackerself_world;
         self.pixelratio = pixelratio;
         self.swapx = swapx;
         self.swapy = swapy;
@@ -183,7 +181,7 @@ class WILLocDataBase:
             yoffset_world = float(calibdata[0].split()[3]);
             zoffset_world = float(calibdata[0].split()[5]);
             rotoffset_world = math.radians(float(calibdata[0].split()[7]));
-            rotoffset_trackerself   = math.radians(float(calibdata[0].split()[9]));
+            rotoffset_trackerself_world = math.radians(float(calibdata[0].split()[9]));
             pixelratio = int(calibdata[0].split()[11]);
             swapx = bool(int(calibdata[0].split()[13]));
             swapy = bool(int(calibdata[0].split()[15]));
@@ -192,9 +190,9 @@ class WILLocDataBase:
             if self.verbose:
                 print("Setting these calibration parameters: offx: %s, offy: %s, offz: %s, worrot: %s/%s objrot: %s/%s pixrat: %d swapx: %d swapy: %d revrot: %d"%
                     (self.xoffset_world, self.yoffset_world, self.zoffset_world, self.rotoffset_world, math.degrees(self.rotoffset_world),
-                     self.rotoffset_trackerself, math.degrees(self.rotoffset_trackerself), self.pixelratio, self.swapx, self.swapy, self.reverse_rotdir));
+                     self.rotoffset_trackerself_world, math.degrees(self.rotoffset_trackerself_world), self.pixelratio, self.swapx, self.swapy, self.reverse_rotdir));
 
-            self.calibrate_world(xoffset_world, yoffset_world, zoffset_world, rotoffset_world, rotoffset_trackerself, pixelratio, swapx, swapy, reverse_rotdir);
+            self.calibrate_world(xoffset_world, yoffset_world, zoffset_world, rotoffset_world, rotoffset_trackerself_world, pixelratio, swapx, swapy, reverse_rotdir);
 
             return True
 
@@ -203,7 +201,7 @@ class WILLocDataBase:
             return False
 
     def get_calibration_data_world(self):
-        return [ self.xoffset_world, self.yoffset_world, self.zoffset_world, self.rotoffset_world, self.rotoffset_trackerself, self.pixelratio, self.swapx, self.swapy, self.reverse_rotdir ]
+        return [ self.xoffset_world, self.yoffset_world, self.zoffset_world, self.rotoffset_world, self.rotoffset_trackerself_world, self.pixelratio, self.swapx, self.swapy, self.reverse_rotdir ]
 
     def all_poses_valid(self):
         self.all_tracked_objs_have_valid_pose = True;
