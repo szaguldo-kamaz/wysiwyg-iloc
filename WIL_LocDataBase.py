@@ -169,30 +169,67 @@ class WILLocDataBase:
 
     def calibrate_from_file(self, calibdata_filename):
         # try to read previous calibration config data
-        try:
+        try:  # todo better exception handling...
             calibdatafile = open(calibdata_filename,"r");
             calibdata = calibdatafile.readlines();
             calibdatafile.close();
-            if len(calibdata) != 1:
-                print("Something is wrong with the data format %s! Should be only 1 line! Exiting..."%(calibdata_filename));
+            if len(calibdata) == 0:
+                print("Empty calibration config file?");
                 sys.exit(1);
 
-            xoffset_world = float(calibdata[0].split()[1]);
-            yoffset_world = float(calibdata[0].split()[3]);
-            zoffset_world = float(calibdata[0].split()[5]);
-            rotoffset_world = math.radians(float(calibdata[0].split()[7]));
-            rotoffset_trackerself_world = math.radians(float(calibdata[0].split()[9]));
-            pixelratio = int(calibdata[0].split()[11]);
-            swapx = bool(int(calibdata[0].split()[13]));
-            swapy = bool(int(calibdata[0].split()[15]));
-            reverse_rotdir = bool(int(calibdata[0].split()[17]));
+            linezerosplit = calibdata[0].split();
+
+            gwcount = 0;
+            for goodkeyword in [ "wxoff", "wyoff", "wzoff", "worioff", "worioff_t", "pixrat", "swapx", "swapy", "revrot" ]:
+                if linezerosplit[gwcount] != goodkeyword + ":":
+                    print("Bad calibration config file: line 0, keyword %d should be %s!"%(gwcount/2, goodkeyword));
+                    sys.exit(1);
+                gwcount += 2;
+
+            xoffset_world = float(linezerosplit[1]);
+            yoffset_world = float(linezerosplit[3]);
+            zoffset_world = float(linezerosplit[5]);
+            rotoffset_world = math.radians(float(linezerosplit[7]));
+            rotoffset_trackerself_world = math.radians(float(linezerosplit[9]));
+            pixelratio = int(linezerosplit[11]);
+            swapx = bool(int(linezerosplit[13]));
+            swapy = bool(int(linezerosplit[15]));
+            reverse_rotdir = bool(int(linezerosplit[17]));
 
             if self.verbose:
                 print("Setting these calibration parameters: offx: %s, offy: %s, offz: %s, worrot: %s/%s objrot: %s/%s pixrat: %d swapx: %d swapy: %d revrot: %d"%
-                    (self.xoffset_world, self.yoffset_world, self.zoffset_world, self.rotoffset_world, math.degrees(self.rotoffset_world),
-                     self.rotoffset_trackerself_world, math.degrees(self.rotoffset_trackerself_world), self.pixelratio, self.swapx, self.swapy, self.reverse_rotdir));
+                    (xoffset_world, yoffset_world, zoffset_world, rotoffset_world, math.degrees(rotoffset_world),
+                     rotoffset_trackerself_world, math.degrees(rotoffset_trackerself_world), pixelratio, swapx, swapy, reverse_rotdir));
 
             self.calibrate_world(xoffset_world, yoffset_world, zoffset_world, rotoffset_world, rotoffset_trackerself_world, pixelratio, swapx, swapy, reverse_rotdir);
+
+            if len(calibdata) > 1:
+                currlinecount = 0;
+                for configline in calibdata[1:]:
+                    currlinecount += 1;
+                    trackeradjustlinesplit = configline.split();
+                    gwcount = 0;
+                    for goodkeyword in [ "tracker", "xoff", "yoff", "zoff", "orioff_t" ]:
+                        if trackeradjustlinesplit[gwcount] != goodkeyword + ":":
+                            print("Bad calibration config file: line %d, keyword %d should be %s!"%(currlinecount, gwcount/2, goodkeyword));
+                            sys.exit(1);
+                        gwcount += 2;
+
+                    trackerserial = trackeradjustlinesplit[1];
+                    if trackerserial not in self.tracked_objects.keys():
+                        print("Bad calibration config file: line %d: no such tracker listed in wilconfig: %s!"%(currlinecount, trackeradjustlinesplit[1]));
+                        sys.exit(1);
+
+                    xoffset_tracker = float(trackeradjustlinesplit[3]);
+                    yoffset_tracker = float(trackeradjustlinesplit[5]);
+                    zoffset_tracker = float(trackeradjustlinesplit[7]);
+                    rotoffset_trackerself_tracker = math.radians(float(trackeradjustlinesplit[9]));
+
+                    if self.verbose:
+                        print("Setting these calibration parameters for tracker %s: offx: %s, offy: %s, offz: %s, objrot: %s/%s"%
+                            (trackerserial, xoffset_tracker, yoffset_tracker, zoffset_tracker, rotoffset_trackerself_tracker, math.degrees(rotoffset_trackerself_tracker)) );
+
+                    self.tracked_objects[trackerserial].calibrate_tracker(xoffset_tracker, yoffset_tracker, zoffset_tracker, rotoffset_trackerself_tracker);
 
             return True
 
