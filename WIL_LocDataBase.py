@@ -15,6 +15,11 @@ class WILLocDataBase:
 
         def __init__(self, trackerserial, wldbobj):
             self.serial  = trackerserial;
+            self.timecode = 0;
+            self.pose = None;
+            self.pose_euler_deg = None;
+            self.button = 0;
+            self.rotaxis = 0;
             self.wldbobj = wldbobj;
             self.xoffset_tracker = 0.0;
             self.yoffset_tracker = 0.0;
@@ -168,28 +173,28 @@ class WILLocDataBase:
     def all_poses_valid(self):
         self.all_tracked_objs_have_valid_pose = True;
         for trackobj in self.tracked_objects.keys():
-            if self.tracked_objects[trackobj]['pose'] == None:
+            if self.tracked_objects[trackobj].pose == None:
                 self.all_tracked_objs_have_valid_pose = False;
                 break
         return self.all_tracked_objs_have_valid_pose
 
     def get_raw_position(self, tracker_serial):
-        return self.tracked_objects[tracker_serial]['pose'][0:3];
+        return self.tracked_objects[tracker_serial].pose[0:3];
 
     def get_raw_orientation_quat(self, tracker_serial):
-        return self.tracked_objects[tracker_serial]['pose'][3:7];
+        return self.tracked_objects[tracker_serial].pose[3:7];
 
     def get_raw_orientation_euler_radians(self, tracker_serial):
-        if 'pose_euler_deg' in self.tracked_objects[tracker_serial].keys():
-            return [ math.radians(deg) for deg in self.tracked_objects[tracker_serial]['pose_euler_deg'][3:6] ];
+        if self.tracked_objects[tracker_serial].pose_euler_deg != None:
+            return [ math.radians(deg) for deg in self.tracked_objects[tracker_serial].pose_euler_deg[3:6] ];
         else:
-            return self.quattoeuler(self.tracked_objects[tracker_serial]['pose'][3:7]);
+            return self.quattoeuler(self.tracked_objects[tracker_serial].pose[3:7]);
 
     def get_raw_orientation_euler_degrees(self, tracker_serial):
-        if 'pose_euler_deg' in self.tracked_objects[tracker_serial].keys():
-            return self.tracked_objects[tracker_serial]['pose_euler_deg'][3:6];
+        if self.tracked_objects[tracker_serial].pose_euler_deg != None:
+            return self.tracked_objects[tracker_serial].pose_euler_deg[3:6];
         else:
-            return [ math.degrees(radian) for radian in self.quattoeuler(self.tracked_objects[tracker_serial]['pose'][3:7]) ];
+            return [ math.degrees(radian) for radian in self.quattoeuler(self.tracked_objects[tracker_serial].pose[3:7]) ];
 
     def get_position(self, tracker_serial):
         rawpos = self.get_raw_position(tracker_serial);
@@ -211,7 +216,7 @@ class WILLocDataBase:
     def get_orientation_radians(self, tracker_serial):
         rot_radians = self.get_raw_orientation_euler_radians(tracker_serial);
         # rot angle -180-+180 -> 0-360
-        angle = rot_radians[self.tracked_objects[tracker_serial]['rotaxis']] + math.pi - self.rotoffset_trackerself;
+        angle = rot_radians[self.tracked_objects[tracker_serial].rotaxis] + math.pi - self.rotoffset_trackerself;
         if angle >= 2*math.pi:
             angle = robotangle - 2*math.pi;
         if angle < 0:
@@ -224,18 +229,18 @@ class WILLocDataBase:
         return math.degrees(self.get_orientation_radians(tracker_serial));
 
     def was_button_pressed(self, tracker_serial):
-        if self.tracked_objects[tracker_serial]['button'] == 1:
-            self.tracked_objects[tracker_serial]['button'] = 0;
+        if self.tracked_objects[tracker_serial].button == 1:
+            self.tracked_objects[tracker_serial].button = 0;
             return True
         else:
             return False
 
     def set_tracker_rotaxis_by_serial(self, tracker_serial, rotaxisno):
-        self.tracked_objects[tracker_serial]['rotaxis'] = rotaxisno;
+        self.tracked_objects[tracker_serial].rotaxis = rotaxisno;
 
     # ROS and SteamVR overrides this
     def add_tracker_by_serial(self, trackerserial):
         if trackerserial not in self.tracked_objects.keys():
-            self.tracked_objects[trackerserial] = {'timecode':0, 'pose':None, 'pose_euler_deg':None, 'button':0};
+            self.tracked_objects[trackerserial] = self.WILTracker(trackerserial, self);
             self.all_tracked_objs_have_valid_pose = False;
-            return self.WILTracker(trackerserial, self);
+            return self.tracked_objects[trackerserial];

@@ -36,10 +36,10 @@ class WILLocDataROS(WILLocDataBase):
     def update(self):
 
         for serial in self.ros_subscribers.keys():
-            self.tracked_objects[serial]['pose'] = self.ros_subscribers[serial].get_pose();
-#            self.tracked_objects[serial]['timecode'] = time.time();
+            self.tracked_objects[serial].pose = self.ros_subscribers[serial].get_pose();
+#            self.tracked_objects[serial].timecode = time.time();
 # add button support later...
-#            self.tracked_objects[serial]['button'] = 0;
+#            self.tracked_objects[serial].button = 0;
 
         return 0
 
@@ -49,6 +49,6 @@ class WILLocDataROS(WILLocDataBase):
 #            msgtype = Pose;
             msgtype = PoseWithCovarianceStamped;
             self.ros_subscribers[trackerserial] = self.WILLocDataROSsubscriber(topic, msgtype);
-            self.tracked_objects[trackerserial] = {'timecode':0, 'pose':None, 'pose_euler_deg':None, 'button':0};
+            self.tracked_objects[trackerserial] = self.WILTracker(trackerserial, self);
             self.all_tracked_objs_have_valid_pose = False;
-            return self.WILTracker(trackerserial, self);
+            return self.tracked_objects[trackerserial]

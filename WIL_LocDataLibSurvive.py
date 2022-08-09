@@ -30,18 +30,18 @@ class WILLocDataLibSurvive(WILLocDataBase):
     def pose_func(self, obj, timecode, pose):
         trackerserial = obj.contents.serial_number.decode('utf8');
         if trackerserial not in self.tracked_objects.keys():
-            self.tracked_objects[trackerserial] = {'timecode':timecode, 'pose':pose, 'button':0};
-        else:
-            self.tracked_objects[trackerserial]['timecode'] = timecode;
-            self.tracked_objects[trackerserial]['pose'] = pose;
+            self.add_tracker_by_serial(trackerserial);
+        self.tracked_objects[trackerserial].timecode = timecode;
+        self.tracked_objects[trackerserial].pose = pose;
 
     def button_func(self, obj, eventtype, buttonid, axisids, axisvals):
         trackerserial = obj.contents.serial_number.decode('utf8');
         if trackerserial not in self.tracked_objects.keys():
-            self.tracked_objects[trackerserial] = {'timecode':0, 'pose':[0]*7, 'button':0};
+            self.add_tracker_by_serial(trackerserial);
+#            self.tracked_objects[trackerserial].pose = [0]*7;
         else:
             if buttonid == 3:  # sys button on tracker
                 if   eventtype == pysurvive.SURVIVE_INPUT_EVENT_BUTTON_UP:
-                    self.tracked_objects[trackerserial]['button'] = 1;
+                    self.tracked_objects[trackerserial].button = 1;
                 elif eventtype == pysurvive.SURVIVE_INPUT_EVENT_BUTTON_DOWN:
-                    self.tracked_objects[trackerserial]['button'] = 0;
+                    self.tracked_objects[trackerserial].button = 0;
