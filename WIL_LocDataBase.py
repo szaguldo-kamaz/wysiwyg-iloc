@@ -16,6 +16,10 @@ class WILLocDataBase:
         def __init__(self, trackerserial, wldbobj):
             self.serial  = trackerserial;
             self.wldbobj = wldbobj;
+            self.xoffset_tracker = 0.0;
+            self.yoffset_tracker = 0.0;
+            self.zoffset_tracker = 0.0;
+            self.rotoffset_trackerself_tracker = 0.0;
 
         def get_raw_position(self):
             return self.wldbobj.get_raw_position(self.serial);
@@ -46,6 +50,15 @@ class WILLocDataBase:
 
         def set_rotaxis(self, rotaxisno):
             return self.wldbobj.set_tracker_rotaxis_by_serial(self.serial, rotaxisno);
+
+        def calibrate_tracker(self, xoffset_tracker, yoffset_tracker, zoffset_tracker, rotoffset_trackerself_tracker):
+            self.xoffset_tracker = xoffset_tracker;
+            self.yoffset_tracker = yoffset_tracker;
+            self.zoffset_tracker = zoffset_tracker;
+            self.rotoffset_trackerself_tracker = rotoffset_trackerself_tracker;
+
+        def get_calibration_data_tracker(self):
+            return [ self.xoffset_tracker, self.yoffset_tracker, self.zoffset_tracker, self.rotoffset_trackerself_tracker ];
 
 
     def __init__(self, roomsize):
