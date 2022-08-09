@@ -27,34 +27,69 @@ class WILLocDataBase:
             self.rotoffset_trackerself_tracker = 0.0;
 
         def get_raw_position(self):
-            return self.wldbobj.get_raw_position(self.serial);
+            return self.pose[0:3];
 
         def get_raw_orientation_quat(self):
-            return self.wldbobj.get_raw_orientation_quat(self.serial);
+            return self.pose[3:7];
 
         def get_raw_orientation_euler_radians(self):
-            return self.wldbobj.get_raw_orientation_euler_radians(self.serial);
+            if self.pose_euler_deg != None:
+                return [ math.radians(deg) for deg in self.pose_euler_deg[3:6] ];
+            else:
+                return self.wldbobj.quattoeuler(self.pose[3:7]);
 
         def get_raw_orientation_euler_degrees(self):
-            return self.wldbobj.get_raw_orientation_euler_degrees(self.serial);
+            if self.pose_euler_deg != None:
+                return self.pose_euler_deg[3:6];
+            else:
+                return [ math.degrees(radian) for radian in self.wldbobj.quattoeuler(self.pose[3:7]) ];
 
         def get_position(self):
-            return self.wldbobj.get_position(self.serial);
+            rawpos = self.get_raw_position();
+            if self.wldbobj.swapx:
+                rawpos[0] = -rawpos[0];
+            if self.wldbobj.swapy:
+                rawpos[1] = -rawpos[1];
+            [r, th] = self.wldbobj.rect2polar(rawpos[0], rawpos[1]);
+#            [r, th] = self.wldbobj.rect2polar(offsetpos[0], offsetpos[1]);
+            newth = th - self.wldbobj.rotoffset_world;
+            rotatedpos = self.wldbobj.polar2rect(r, newth);
+            offrotpos = [ rotatedpos[0] + self.wldbobj.xoffset_world + self.xoffset_tracker,
+                          rotatedpos[1] + self.wldbobj.yoffset_world + self.yoffset_tracker,
+                          rawpos[2]     + self.wldbobj.zoffset_world + self.zoffset_tracker ];
+
+            return offrotpos
 
         def get_position_pixel(self):
-            return self.wldbobj.get_position_pixel(self.serial);
+            trackpos = self.get_position();
+            return [ trackpos[0] * self.wldbobj.pixelratio, trackpos[1] * self.wldbobj.pixelratio ];
+
+###
 
         def get_orientation_radians(self):
-            return self.wldbobj.get_orientation_radians(self.serial);
+            rot_radians = self.get_raw_orientation_euler_radians();
+            # rot angle -180-+180 -> 0-360
+            angle = rot_radians[self.rotaxis] + math.pi - self.wldbobj.rotoffset_trackerself;
+            if angle >= 2*math.pi:
+                angle -= 2*math.pi;
+            if angle < 0:
+                angle += 2*math.pi;
+            if self.wldbobj.reverse_rotdir:
+                angle = 2*math.pi - angle;
+            return angle
 
         def get_orientation_degrees(self):
-            return self.wldbobj.get_orientation_degrees(self.serial);
+            return math.degrees(self.get_orientation_radians());
 
         def was_button_pressed(self):
-            return self.wldbobj.was_button_pressed(self.serial);
+            if self.button == 1:
+                self.button = 0;
+                return True
+            else:
+                return False
 
         def set_rotaxis(self, rotaxisno):
-            return self.wldbobj.set_tracker_rotaxis_by_serial(self.serial, rotaxisno);
+            self.rotaxis = rotaxisno;
 
         def calibrate_tracker(self, xoffset_tracker, yoffset_tracker, zoffset_tracker, rotoffset_trackerself_tracker):
             self.xoffset_tracker = xoffset_tracker;
@@ -177,66 +212,6 @@ class WILLocDataBase:
                 self.all_tracked_objs_have_valid_pose = False;
                 break
         return self.all_tracked_objs_have_valid_pose
-
-    def get_raw_position(self, tracker_serial):
-        return self.tracked_objects[tracker_serial].pose[0:3];
-
-    def get_raw_orientation_quat(self, tracker_serial):
-        return self.tracked_objects[tracker_serial].pose[3:7];
-
-    def get_raw_orientation_euler_radians(self, tracker_serial):
-        if self.tracked_objects[tracker_serial].pose_euler_deg != None:
-            return [ math.radians(deg) for deg in self.tracked_objects[tracker_serial].pose_euler_deg[3:6] ];
-        else:
-            return self.quattoeuler(self.tracked_objects[tracker_serial].pose[3:7]);
-
-    def get_raw_orientation_euler_degrees(self, tracker_serial):
-        if self.tracked_objects[tracker_serial].pose_euler_deg != None:
-            return self.tracked_objects[tracker_serial].pose_euler_deg[3:6];
-        else:
-            return [ math.degrees(radian) for radian in self.quattoeuler(self.tracked_objects[tracker_serial].pose[3:7]) ];
-
-    def get_position(self, tracker_serial):
-        rawpos = self.get_raw_position(tracker_serial);
-        if self.swapx:
-            rawpos[0] = -rawpos[0];
-        if self.swapy:
-            rawpos[1] = -rawpos[1];
-        [r, th] = self.rect2polar(rawpos[0], rawpos[1]);
-#        [r, th] = self.rect2polar(offsetpos[0], offsetpos[1]);
-        newth = th - self.rotoffset_world;
-        rotatedpos = self.polar2rect(r, newth);
-        offrotpos = [ rotatedpos[0] + self.xoffset_world, rotatedpos[1] + self.yoffset_world, rawpos[2] + self.zoffset_world ];
-        return offrotpos
-
-    def get_position_pixel(self, tracker_serial):
-        trackpos = self.get_position(tracker_serial);
-        return [ trackpos[0] * self.pixelratio, trackpos[1] * self.pixelratio ];
-
-    def get_orientation_radians(self, tracker_serial):
-        rot_radians = self.get_raw_orientation_euler_radians(tracker_serial);
-        # rot angle -180-+180 -> 0-360
-        angle = rot_radians[self.tracked_objects[tracker_serial].rotaxis] + math.pi - self.rotoffset_trackerself;
-        if angle >= 2*math.pi:
-            angle = robotangle - 2*math.pi;
-        if angle < 0:
-            angle = 2*math.pi + angle;
-        if self.reverse_rotdir:
-            angle = 2*math.pi - angle;
-        return angle
-
-    def get_orientation_degrees(self, tracker_serial):
-        return math.degrees(self.get_orientation_radians(tracker_serial));
-
-    def was_button_pressed(self, tracker_serial):
-        if self.tracked_objects[tracker_serial].button == 1:
-            self.tracked_objects[tracker_serial].button = 0;
-            return True
-        else:
-            return False
-
-    def set_tracker_rotaxis_by_serial(self, tracker_serial, rotaxisno):
-        self.tracked_objects[tracker_serial].rotaxis = rotaxisno;
 
     # ROS and SteamVR overrides this
     def add_tracker_by_serial(self, trackerserial):
