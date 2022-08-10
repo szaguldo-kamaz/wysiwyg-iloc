@@ -15,13 +15,17 @@ Calibration is very simple and easy, just run *wil_calibration_with_floorproj.py
 Usage:  
 &nbsp; mouse dragging with left button pressed: adjust x,y offset  
 &nbsp; mouse scrollwheel: adjust world orientation offset  
-&nbsp; mouse scrollwheel with left button pressed: adjust object orientation offset  
+&nbsp; mouse scrollwheel with left button pressed: adjust tracker orientation offset  
 &nbsp; keys + - : adjust pixratio  
 &nbsp; keys x y r : toggle swap x, y, rotdir  
+&nbsp; keys 1..0: select tracker no. 1..10 for individual adjusment  
+&nbsp; key Space: select world / unselect tracker  
 &nbsp; key Esc : exit without saving calibration parameters  
 &nbsp; key Enter : save calibration parameters and exit  
 
+First, try to adjust the world offsets, then (if required) adjust the trackers individually (use the 1..0 keys to select, then mouse drag + scrollwheel).
 By default the calibration parameters will be stored in a file called *wil_calibparams-NEW.txt*, the examples (and the calibration application) read the calibration parameters from *wil_calibparams-OK.txt*, be sure to rename or symlink it to use the new parameters file.
+To adjust heights (z axis), modify the saved *wil_calibparams.txt* file manually.
 If you would like to use the adjusted poses in your application, please see *wil_talker_** as examples.
 
 Even without using floor projection, WIL can possibly serve as a "Room Setup" tool for [libsurive](https://github.com/cntools/libsurvive) (and also for SteamVR, but it already has a "rough" Room Setup component).
