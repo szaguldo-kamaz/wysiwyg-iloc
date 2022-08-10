@@ -47,7 +47,7 @@ class WIL:
         self.trackers[trackername] = self.trackers_by_serial[trackerserial];
 
     def get_tracker_names(self):
-        return self.trackers.keys();
+        return list(self.trackers.keys());
 
     def get_tracker_serials(self):
         return self.trackers_by_serial.keys();

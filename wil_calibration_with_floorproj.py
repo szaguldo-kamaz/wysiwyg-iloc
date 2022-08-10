@@ -140,7 +140,8 @@ dragpos = [ -1, -1 ];
 needoffsetupdate = True;
 offset_label = 0;
 individualtrackermode = False;
-individualtrackermode_whichtracker = 1;
+individualtrackermode_whichtracker = 0;
+individualtracker_orientoffset_trackerself = 1;
 
 print("Waiting for all the tracked devices to appear...");
 while not wilobj.all_poses_valid():
