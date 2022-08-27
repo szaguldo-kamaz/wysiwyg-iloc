@@ -30,9 +30,10 @@ If you would like to use the adjusted poses in your application, please see *wil
 
 Even without using floor projection, WIL can possibly serve as a "Room Setup" tool for [libsurive](https://github.com/cntools/libsurvive) (and also for SteamVR, but it already has a "rough" Room Setup component).
 
-Requires Python 3 and PySimpleGUI (`pip install pysimplegui`).
+Requires Python 3 and PySimpleGUI (`pip install pysimplegui`). And also openvr if you want to use SteamVR as the localization data source (`pip install openvr`).
 
 Also, you can find more details in the [following paper](http://dx.doi.org/10.1109/AIM52237.2022.9863359), also if you find this useful and use it in your research, please cite:
 
 `D. Vincze, M. Niitsuma, "What-You-See-Is-What-You-Get Indoor Localization for Physical Human-Robot Interaction Experiments", in Proc. of the 2022 IEEE/ASME International Conference on Advanced Intelligent Mechatronics (AIM2022), 2022, Sapporo, Japan, pp. 909-914.`
+
 DOI: [10.1109/AIM52237.2022.9863359](http://dx.doi.org/10.1109/AIM52237.2022.9863359)
