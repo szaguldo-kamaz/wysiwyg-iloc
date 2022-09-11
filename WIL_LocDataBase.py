@@ -217,8 +217,8 @@ class WILLocDataBase:
 
                     trackerserial = trackeradjustlinesplit[1];
                     if trackerserial not in self.tracked_objects.keys():
-                        print("Bad calibration config file: line %d: no such tracker listed in wilconfig: %s!"%(currlinecount, trackeradjustlinesplit[1]));
-                        sys.exit(1);
+                        print("WARNING: Possibly bad calibration config file: line %d: no such tracker listed in wilconfig: %s!"%(currlinecount, trackeradjustlinesplit[1]));
+#                        sys.exit(1);
 
                     xoffset_tracker = float(trackeradjustlinesplit[3]);
                     yoffset_tracker = float(trackeradjustlinesplit[5]);

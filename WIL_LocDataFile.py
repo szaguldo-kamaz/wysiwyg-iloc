@@ -42,12 +42,16 @@ class WILLocDataFile(WILLocDataBase):
 
         while (time.time() - self.start_real_timestamp) > self.elapsed_filetime:
             trackerserial = self.dataline[1];
-            if self.datatype == 2:
-                self.tracked_objects[trackerserial].pose = list(map(float, self.dataline[2:5])) + [0.0]*4;
-                self.tracked_objects[trackerserial].pose_euler_deg = list(map(float, self.dataline[2:]));
+            if trackerserial not in self.tracked_objects.keys():
+                print("WARNING: Unrecognized tracker:", trackerserial);
             else:
-                self.tracked_objects[trackerserial].pose = list(map(float, self.dataline[2:]));
-                self.tracked_objects[trackerserial].pose_euler_deg = list(map(float, self.dataline[2:5])) + [0.0]*3;
+                if self.datatype == 2:
+                    self.tracked_objects[trackerserial].pose = list(map(float, self.dataline[2:5])) + [0.0]*4;
+                    self.tracked_objects[trackerserial].pose_euler_deg = list(map(float, self.dataline[2:]));
+                else:
+                    self.tracked_objects[trackerserial].pose = list(map(float, self.dataline[2:]));
+                    self.tracked_objects[trackerserial].pose_euler_deg = list(map(float, self.dataline[2:5])) + [0.0]*3;
+
             self.dataline = self.datafile.readline().strip().split(',');
             if self.dataline == ['']:
                 self.eofreached = True;

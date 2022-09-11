@@ -8,7 +8,6 @@
 #
 
 import time, sys, shutil, datetime
-from wil_config  import wil_config
 from WIL import WIL
 
 
@@ -21,11 +20,10 @@ datagatherinterval = 0.01;  # sec
 
 ### start ###
 
-wilobj = WIL(wil_config.locdata_source, wil_config.playareapixels);
-
-for trackername in wil_config.trackers.keys():
-    wilobj.add_tracker(trackername, wil_config.trackers[trackername]['serial']);
-    wilobj.trackers[trackername].set_rotaxis(wil_config.trackers[trackername]['rotaxis']);
+if len(sys.argv) > 1:
+    wilobj = WIL(sys.argv[1]);
+else:
+    wilobj = WIL();
 
 # try to read previous calibration config data (set verbose so calibrate_from_file() will print actual values)
 wilobj.set_verbose(True);

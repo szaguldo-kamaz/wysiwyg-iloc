@@ -19,7 +19,6 @@
 
 import math, sys, datetime, os
 import PySimpleGUI as sg
-from wil_config  import wil_config
 from WIL import WIL
 from draw_rotated_things.draw_rotated_things import *
 
@@ -29,11 +28,10 @@ from draw_rotated_things.draw_rotated_things import *
 #floorprojectionmode = True; # fullscreen
 floorprojectionmode = False; # windowed - for testing
 calibdata_filename  = "wil_calibparams.txt";
-calibdata_filename_backup = "wil_calibparams-NEW.txt";
-default_pixelratio = wil_config.playareapixels[1] / 4;
 default_swapx = False;
 default_swapy = True;
 default_reverse_rotdir = True;
+default_pixelratio = 200;
 windowbackgroundcolor = '#000000';
 linecolor1 = '#FFFFFF';
 linecolor2 = '#00FF00';
@@ -45,11 +43,10 @@ plotsize_large = 40;
 
 ### start ###
 
-
-wilobj = WIL(wil_config.locdata_source, wil_config.playareapixels);
-for trackername in wil_config.trackers.keys():
-    wilobj.add_tracker(trackername, wil_config.trackers[trackername]['serial']);
-    wilobj.trackers[trackername].set_rotaxis(wil_config.trackers[trackername]['rotaxis']);
+if len(sys.argv) > 1:
+    wilobj = WIL(sys.argv[1]);
+else:
+    wilobj = WIL();
 
 # try to read previous calibration config data
 if wilobj.calibrate_from_file(calibdata_filename):
@@ -70,7 +67,7 @@ else:
 
 # init gui
 sg.theme('DarkGrey5');
-graphsize = (wil_config.playareapixels[0], wil_config.playareapixels[1]);
+graphsize = (wilobj.config.playareapixels[0], wilobj.config.playareapixels[1]);
 left_side_layout = [ [ sg.Graph(
                             graphsize, (0, graphsize[1]), (graphsize[0], 0),
                             background_color=windowbackgroundcolor,
@@ -92,25 +89,25 @@ window.bind('<Button-4>', '+SCRUP+');
 window.bind('<Button-5>', '+SCRDN+');
 
 # draw playarea borders
-graph.draw_rectangle( [1, 1], [wil_config.playareapixels[0] - 2, wil_config.playareapixels[1] - 1], line_color=linecolor1, line_width=3);
+graph.draw_rectangle( [1, 1], [wilobj.config.playareapixels[0] - 2, wilobj.config.playareapixels[1] - 1], line_color=linecolor1, line_width=3);
 
 # color2
 for no in range(0,4):
-    graph.draw_line( ((wil_config.playareapixels[0]/2) - (2*no*100) - 100, 0) , ((wil_config.playareapixels[0]/2) - (2*no*100)-100,wil_config.playareapixels[1]), color=linecolor2);
-    graph.draw_line( ((wil_config.playareapixels[0]/2) + (2*no*100) + 100, 0) , ((wil_config.playareapixels[0]/2) + (2*no*100)+100,wil_config.playareapixels[1]), color=linecolor2);
+    graph.draw_line( ((wilobj.config.playareapixels[0]/2) - (2*no*100) - 100, 0) , ((wilobj.config.playareapixels[0]/2) - (2*no*100)-100,wilobj.config.playareapixels[1]), color=linecolor2);
+    graph.draw_line( ((wilobj.config.playareapixels[0]/2) + (2*no*100) + 100, 0) , ((wilobj.config.playareapixels[0]/2) + (2*no*100)+100,wilobj.config.playareapixels[1]), color=linecolor2);
 for no in range(0,3):
-    graph.draw_line( (0, (wil_config.playareapixels[1]/2) - (2*no*100) - 100, 0) , (wil_config.playareapixels[0], (wil_config.playareapixels[1]/2) - (2*no*100) - 100), color=linecolor2);
-    graph.draw_line( (0, (wil_config.playareapixels[1]/2) + (2*no*100) + 100, 0) , (wil_config.playareapixels[0], (wil_config.playareapixels[1]/2) + (2*no*100) + 100), color=linecolor2);
+    graph.draw_line( (0, (wilobj.config.playareapixels[1]/2) - (2*no*100) - 100, 0) , (wilobj.config.playareapixels[0], (wilobj.config.playareapixels[1]/2) - (2*no*100) - 100), color=linecolor2);
+    graph.draw_line( (0, (wilobj.config.playareapixels[1]/2) + (2*no*100) + 100, 0) , (wilobj.config.playareapixels[0], (wilobj.config.playareapixels[1]/2) + (2*no*100) + 100), color=linecolor2);
 # color3 should be above color2 lines
 for no in range(1,4):
-    graph.draw_line( ((wil_config.playareapixels[0]/2) - (2*no*100),0) , ((wil_config.playareapixels[0]/2) - (2*no*100),wil_config.playareapixels[1]), color=linecolor3);
-    graph.draw_line( ((wil_config.playareapixels[0]/2) + (2*no*100),0) , ((wil_config.playareapixels[0]/2) + (2*no*100),wil_config.playareapixels[1]), color=linecolor3);
+    graph.draw_line( ((wilobj.config.playareapixels[0]/2) - (2*no*100),0) , ((wilobj.config.playareapixels[0]/2) - (2*no*100),wilobj.config.playareapixels[1]), color=linecolor3);
+    graph.draw_line( ((wilobj.config.playareapixels[0]/2) + (2*no*100),0) , ((wilobj.config.playareapixels[0]/2) + (2*no*100),wilobj.config.playareapixels[1]), color=linecolor3);
 for no in range(1,3):
-    graph.draw_line( (0, (wil_config.playareapixels[1]/2) - (2*no*100)) , (wil_config.playareapixels[0], (wil_config.playareapixels[1]/2) - (2*no*100)), color=linecolor3);
-    graph.draw_line( (0, (wil_config.playareapixels[1]/2) + (2*no*100)) , (wil_config.playareapixels[0], (wil_config.playareapixels[1]/2) + (2*no*100)), color=linecolor3);
+    graph.draw_line( (0, (wilobj.config.playareapixels[1]/2) - (2*no*100)) , (wilobj.config.playareapixels[0], (wilobj.config.playareapixels[1]/2) - (2*no*100)), color=linecolor3);
+    graph.draw_line( (0, (wilobj.config.playareapixels[1]/2) + (2*no*100)) , (wilobj.config.playareapixels[0], (wilobj.config.playareapixels[1]/2) + (2*no*100)), color=linecolor3);
 # middle cross is a bit thicker, and color1 (white)
-graph.draw_line( (wil_config.playareapixels[0]/2, 0), (wil_config.playareapixels[0]/2, wil_config.playareapixels[1]), color=linecolor1, width=2);
-graph.draw_line( (0, wil_config.playareapixels[1]/2), (wil_config.playareapixels[0], wil_config.playareapixels[1]/2), color=linecolor1, width=2);
+graph.draw_line( (wilobj.config.playareapixels[0]/2, 0), (wilobj.config.playareapixels[0]/2, wilobj.config.playareapixels[1]), color=linecolor1, width=2);
+graph.draw_line( (0, wilobj.config.playareapixels[1]/2), (wilobj.config.playareapixels[0], wilobj.config.playareapixels[1]/2), color=linecolor1, width=2);
 
 trackernames = wilobj.get_tracker_names();
 trackercount = len(trackernames);
@@ -120,19 +117,19 @@ for tracker in trackernames:
     trackedobjs[tracker]['posraw']      = [ 0, 0, 0 ];
     trackedobjs[tracker]['oriraw']      = [ 0, 0, 0, 0 ];
     trackedobjs[tracker]['pos']         = [ 0, 0, 0 ];
-    trackedobjs[tracker]['pospixel']    = [ wil_config.playareapixels[0]/2, wil_config.playareapixels[1]/2 ];
+    trackedobjs[tracker]['pospixel']    = [ wilobj.config.playareapixels[0]/2, wilobj.config.playareapixels[1]/2 ];
     trackedobjs[tracker]['orideg']      = 0;
     trackedobjs[tracker]['orirad']      = 0;
     trackedobjs[tracker]['plotobj']     = 0;
-    trackedobjs[tracker]['plotsize']    = wil_config.trackers[tracker]['radius'];
+    trackedobjs[tracker]['plotsize']    = wilobj.config.trackers[tracker]['radius'];
     trackedobjs[tracker]['plotoriobj']      = 0;
     trackedobjs[tracker]['plotorimarkobj']  = 0;
     trackedobjs[tracker]['plotselectedobj'] = 0;
     trackedobjs[tracker]['plotlabelobj']    = 0;
     trackedobjs[tracker]['plotlabeloffset'] = 50;
-    trackedobjs[tracker]['plotlabeltext']   = wil_config.trackers[tracker]['labeltext'];
-    trackedobjs[tracker]['color']           = wil_config.trackers[tracker]['color'];
-#    trackedobjs[tracker]['fillcolor']       = wil_config.trackers[tracker]['color'];
+    trackedobjs[tracker]['plotlabeltext']   = wilobj.config.trackers[tracker]['labeltext'];
+    trackedobjs[tracker]['color']           = wilobj.config.trackers[tracker]['color'];
+#    trackedobjs[tracker]['fillcolor']       = wilobj.config.trackers[tracker]['color'];
     trackedobjs[tracker]['fillcolor']       = None;
     trackedobjs[tracker]['linewidth']       = 7;
 
@@ -175,8 +172,8 @@ while True:
             trackedobjs[trackername]['orideg']      = wilobj.trackers[trackername].get_orientation_degrees();
             trackedobjs[trackername]['orirad']      = wilobj.trackers[trackername].get_orientation_radians();
             trackedobjs[trackername]['pospixel']    = wilobj.trackers[trackername].get_position_pixel();
-            trackedobjs[trackername]['pospixel'][0] = trackedobjs[trackername]['pospixel'][0] + wil_config.playareapixels[0]/2;
-            trackedobjs[trackername]['pospixel'][1] = trackedobjs[trackername]['pospixel'][1] + wil_config.playareapixels[1]/2;
+            trackedobjs[trackername]['pospixel'][0] = trackedobjs[trackername]['pospixel'][0] + wilobj.config.playareapixels[0]/2;
+            trackedobjs[trackername]['pospixel'][1] = trackedobjs[trackername]['pospixel'][1] + wilobj.config.playareapixels[1]/2;
 
             if trackedobjs[trackername]['pospixel'][1] < trackedobjs[trackername]['plotsize'] + 80:
                 trackedobjs[trackername]['plotlabeloffset'] = trackedobjs[trackername]['plotsize'] + 40;
@@ -260,7 +257,7 @@ while True:
         for trackername in trackernames:
             trackcalibdata = wilobj.trackers[trackername].get_calibration_data_tracker();
             calibdata += "tracker: %s xoff: %03.3f yoff: %03.3f zoff: %03.3f orioff_t: %05.1f\r\n"%(
-                wil_config.trackers[trackername]['serial'], trackcalibdata[0], trackcalibdata[1], trackcalibdata[2], math.degrees(trackcalibdata[3]) );
+                wilobj.config.trackers[trackername]['serial'], trackcalibdata[0], trackcalibdata[1], trackcalibdata[2], math.degrees(trackcalibdata[3]) );
 
         if os.path.exists(calibdata_filename):
             calibdata_filename_backup_timestamp = datetime.datetime.today().strftime("_%Y_%m_%d__%H-%M-%S");
@@ -335,7 +332,7 @@ while True:
     if needoffsetupdate:
 
         if individualtrackermode:
-            offset_text = "Offset(%s:%s): %03.3f %03.3f %03.3f OriT:%05.1f"%(individualtrackermode_whichtracker, wil_config.trackers[individualtrackermode_whichtracker]['serial'], individualtracker_xoffset, individualtracker_yoffset, individualtracker_zoffset, math.degrees(individualtracker_orientoffset_trackerself));
+            offset_text = "Offset(%s:%s): %03.3f %03.3f %03.3f OriT:%05.1f"%(individualtrackermode_whichtracker, wilobj.config.trackers[individualtrackermode_whichtracker]['serial'], individualtracker_xoffset, individualtracker_yoffset, individualtracker_zoffset, math.degrees(individualtracker_orientoffset_trackerself));
             wilobj.trackers[individualtrackermode_whichtracker].calibrate_tracker(individualtracker_xoffset, individualtracker_yoffset, individualtracker_zoffset, individualtracker_orientoffset_trackerself);
         else:
             if swapx:           swapx_char = '!';

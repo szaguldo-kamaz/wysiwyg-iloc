@@ -6,37 +6,47 @@
 # https://github.com/szaguldo-kamaz/
 #
 
-from wil_config            import wil_config
+
+import importlib
 
 
 class WIL:
 
-    def __init__(self, locdatasource, playareapixels):
+    def __init__(self, wil_config_filename = "wil_config.py"):
 
+        if wil_config_filename[-3:] == ".py":
+            wil_config_filename = wil_config_filename[:-3];
+
+        wilc = importlib.import_module(wil_config_filename);
+
+        self.config = wilc.wil_config;
         self.trackers = {};
         self.trackers_by_serial = {};
         self.trackers_by_name = self.trackers;
-        self.locdatasource = locdatasource;
         self.verbose = False;
 
-        if   locdatasource == wil_config.LOCDATA_SOURCE_LIBSURVIVE:
+        if   self.config.locdata_source == self.config.LOCDATA_SOURCE_LIBSURVIVE:
             from WIL_LocDataLibSurvive import WILLocDataLibSurvive
-            self.locdata = WILLocDataLibSurvive(playareapixels);
-        elif locdatasource == wil_config.LOCDATA_SOURCE_STEAMVR:
+            self.locdata = WILLocDataLibSurvive(self.config.playareapixels);
+        elif self.config.locdata_source == self.config.LOCDATA_SOURCE_STEAMVR:
             from WIL_LocDataSteamVR    import WILLocDataSteamVR
-            self.locdata = WILLocDataSteamVR(playareapixels);
-        elif locdatasource == wil_config.LOCDATA_SOURCE_ROS:
+            self.locdata = WILLocDataSteamVR(self.config.playareapixels);
+        elif self.config.locdata_source == self.config.LOCDATA_SOURCE_ROS:
             from WIL_LocDataROS        import WILLocDataROS
-            self.locdata = WILLocDataROS(playareapixels);
-        elif locdatasource == wil_config.LOCDATA_SOURCE_REMOTEUDP:
+            self.locdata = WILLocDataROS(self.config.playareapixels);
+        elif self.config.locdata_source == self.config.LOCDATA_SOURCE_REMOTEUDP:
             from WIL_LocDataRemoteUDP  import WILLocDataRemoteUDP
-            self.locdata = WILLocDataRemoteUDP(playareapixels);
-        elif locdatasource == wil_config.LOCDATA_SOURCE_FILE:
+            self.locdata = WILLocDataRemoteUDP(self.config.playareapixels);
+        elif self.config.locdata_source == self.config.LOCDATA_SOURCE_FILE:
             from WIL_LocDataFile       import WILLocDataFile
-            self.locdata = WILLocDataFile(playareapixels);
+            self.locdata = WILLocDataFile(self.config.playareapixels);
         else:
             print("Unknown LocData_source was specified. Exiting.");
             sys.exit(1);  # should be an exception. maybe later...
+
+        for trackername in self.config.trackers.keys():
+            self.add_tracker(trackername, self.config.trackers[trackername]['serial']);
+            self.trackers[trackername].set_rotaxis(self.config.trackers[trackername]['rotaxis']);
 
     def set_verbose(self, verbose):
         self.verbose = verbose;
