@@ -17,7 +17,7 @@
 # https://github.com/szaguldo-kamaz/
 #
 
-import math, sys
+import math, sys, datetime, os
 import PySimpleGUI as sg
 from wil_config  import wil_config
 from WIL import WIL
@@ -28,8 +28,8 @@ from draw_rotated_things.draw_rotated_things import *
 
 #floorprojectionmode = True; # fullscreen
 floorprojectionmode = False; # windowed - for testing
-calibdata_filename_in  = "wil_calibparams-OK.txt";
-calibdata_filename_out = "wil_calibparams-NEW.txt";
+calibdata_filename  = "wil_calibparams.txt";
+calibdata_filename_backup = "wil_calibparams-NEW.txt";
 default_pixelratio = wil_config.playareapixels[1] / 4;
 default_swapx = False;
 default_swapy = True;
@@ -52,11 +52,11 @@ for trackername in wil_config.trackers.keys():
     wilobj.trackers[trackername].set_rotaxis(wil_config.trackers[trackername]['rotaxis']);
 
 # try to read previous calibration config data
-if wilobj.calibrate_from_file(calibdata_filename_in):
+if wilobj.calibrate_from_file(calibdata_filename):
     [ xoffset_world, yoffset_world, zoffset_world, orientoffset_world, orientoffset_trackerself, pixelratio, swapx, swapy, reverse_rotdir ] = wilobj.get_calibration_data_world();
-    print("Calibration data loaded from: %s"%(calibdata_filename_in));
+    print("Calibration data loaded from: %s"%(calibdata_filename));
 else:
-    print("Cannot load calibration data from: %s, using default values."%(calibdata_filename_in));
+    print("Cannot load calibration data from: %s, using default values."%(calibdata_filename));
     xoffset_world = 0.0;
     yoffset_world = 0.0;
     zoffset_world = 0.0;
@@ -261,8 +261,19 @@ while True:
             trackcalibdata = wilobj.trackers[trackername].get_calibration_data_tracker();
             calibdata += "tracker: %s xoff: %03.3f yoff: %03.3f zoff: %03.3f orioff_t: %05.1f\r\n"%(
                 wil_config.trackers[trackername]['serial'], trackcalibdata[0], trackcalibdata[1], trackcalibdata[2], math.degrees(trackcalibdata[3]) );
+
+        if os.path.exists(calibdata_filename):
+            calibdata_filename_backup_timestamp = datetime.datetime.today().strftime("_%Y_%m_%d__%H-%M-%S");
+            calibdata_filename_backup = calibdata_filename[:-4] + calibdata_filename_backup_timestamp + ".txt";
+            calibdata_filename_backup_seqno = 0;
+            while os.path.exists(calibdata_filename_backup):
+                calibdata_filename_backup_seqno += 1;
+                calibdata_filename_backup = calibdata_filename[:-4] + calibdata_filename_backup_timestamp + "_%d"%(calibdata_filename_backup_seqno) + ".txt";
+            print("Backing up previous calibration parameters file as:", calibdata_filename_backup);
+            os.rename(calibdata_filename, calibdata_filename_backup);
+
         print("Saving calibration parameters: ", calibdata);
-        calibdatafile = open(calibdata_filename_out, "w", newline="\n");
+        calibdatafile = open(calibdata_filename, "w", newline="\n");
         calibdatafile.write(calibdata);
         calibdatafile.close();
         break

@@ -14,7 +14,7 @@ from WIL import WIL
 
 # configuration
 
-calibdata_filename = 'wil_calibparams-OK.txt';
+calibdata_filename = 'wil_calibparams.txt';
 
 ### start ###
 

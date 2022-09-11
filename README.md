@@ -24,7 +24,7 @@ Usage:
 &nbsp; key Enter : save calibration parameters and exit  
 
 First, try to adjust the world offsets, then (if required) adjust the trackers individually (use the 1..0 keys to select, then mouse drag + scrollwheel).
-By default the calibration parameters will be stored in a file called *wil_calibparams-NEW.txt*, the examples (and the calibration application) read the calibration parameters from *wil_calibparams-OK.txt*, be sure to rename or symlink it to use the new parameters file.
+By default the calibration parameters are stored in a file called *wil_calibparams.txt* (be sure to copy or symlink your previous calibparams file when using recorded data).
 To adjust heights (z axis), modify the saved *wil_calibparams.txt* file manually.
 If you would like to use the adjusted poses in your application, please see *wil_talker_** as examples.
 

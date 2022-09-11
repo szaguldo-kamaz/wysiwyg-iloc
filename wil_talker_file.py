@@ -14,7 +14,7 @@ from WIL import WIL
 
 # configuration
 
-calibdata_filename = 'wil_calibparams-OK.txt';
+calibdata_filename = 'wil_calibparams.txt';
 dataout_orient_euler = False;
 dataout_filename = 'wil_data_' + ('q', 'e')[dataout_orient_euler] + datetime.datetime.today().strftime("_%Y_%m_%d__%H-%m-%S") + '.csv';
 datagatherinterval = 0.01;  # sec
