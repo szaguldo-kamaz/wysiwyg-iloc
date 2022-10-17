@@ -46,7 +46,9 @@ class WIL:
 
         for trackername in self.config.trackers.keys():
             self.add_tracker(trackername, self.config.trackers[trackername]['serial']);
-            self.trackers[trackername].set_rotaxis(self.config.trackers[trackername]['rotaxis']);
+            self.trackers[trackername].set_yawaxis(self.config.trackers[trackername]['yawaxis']);
+            self.trackers[trackername].set_pitchaxis(self.config.trackers[trackername]['pitchaxis']);
+            self.trackers[trackername].set_rollaxis(self.config.trackers[trackername]['rollaxis']);
 
     def set_verbose(self, verbose):
         self.verbose = verbose;

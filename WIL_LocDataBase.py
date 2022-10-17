@@ -19,7 +19,9 @@ class WILLocDataBase:
             self.pose = None;
             self.pose_euler_deg = None;
             self.button = 0;
-            self.rotaxis = 0;
+            self.yawaxis = 0;
+            self.pitchaxis = 1;
+            self.rollaxis = 2;
             self.wldbobj = wldbobj;
             self.xoffset_tracker = 0.0;
             self.yoffset_tracker = 0.0;
@@ -67,7 +69,7 @@ class WILLocDataBase:
         def get_orientation_radians(self):
             rot_radians = self.get_raw_orientation_euler_radians();
             # rot angle -180-+180 -> 0-360
-            angle = rot_radians[self.rotaxis] + math.pi - self.wldbobj.rotoffset_trackerself_world - self.rotoffset_trackerself_tracker;
+            angle = rot_radians[self.yawaxis] + math.pi - self.wldbobj.rotoffset_trackerself_world - self.rotoffset_trackerself_tracker;
             if angle >= 2*math.pi:
                 angle -= 2*math.pi;
             if angle < 0:
@@ -86,8 +88,14 @@ class WILLocDataBase:
             else:
                 return False
 
-        def set_rotaxis(self, rotaxisno):
-            self.rotaxis = rotaxisno;
+        def set_yawaxis(self, yawaxisno):
+            self.yawaxis = yawaxisno;
+
+        def set_pitchaxis(self, pitchaxisno):
+            self.pitchaxis = pitchaxisno;
+
+        def set_rollaxis(self, rollaxisno):
+            self.rollaxis = rollaxisno;
 
         def calibrate_tracker(self, xoffset_tracker, yoffset_tracker, zoffset_tracker, rotoffset_trackerself_tracker):
             self.xoffset_tracker = xoffset_tracker;

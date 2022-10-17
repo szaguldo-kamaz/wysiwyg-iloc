@@ -19,7 +19,7 @@ class wil_config:
     playareapixels = [ 1280, 800 ];  # projector resolution
 
     trackers = {};
-    trackers['robot']   = {'serial': 'LHR-XXXXXXX1', 'rotaxis': 1, 'radius': 15, 'labeltext': 'ROBOT', 'color': '#FF0000'};
-    trackers['object1'] = {'serial': 'LHR-XXXXXXX2', 'rotaxis': 1, 'radius': 15, 'labeltext': 'OBJ1',  'color': '#0080FF'};
-    trackers['human1']  = {'serial': 'LHR-XXXXXXX3', 'rotaxis': 1, 'radius': 15, 'labeltext': 'HUM1',  'color': '#0000FF'};
-    trackers['human2']  = {'serial': 'LHR-XXXXXXX4', 'rotaxis': 1, 'radius': 15, 'labeltext': 'HUM2',  'color': '#FF00FF'};
+    trackers['robot']   = {'serial': 'LHR-XXXXXXX1', 'yawaxis': 1, 'pitchaxis': 2, 'rollaxis': 0, 'radius': 15, 'labeltext': 'ROBOT', 'color': '#FF0000'};
+    trackers['object1'] = {'serial': 'LHR-XXXXXXX2', 'yawaxis': 1, 'pitchaxis': 2, 'rollaxis': 0, 'radius': 15, 'labeltext': 'OBJ1',  'color': '#0080FF'};
+    trackers['human1']  = {'serial': 'LHR-XXXXXXX3', 'yawaxis': 1, 'pitchaxis': 2, 'rollaxis': 0, 'radius': 15, 'labeltext': 'HUM1',  'color': '#0000FF'};
+    trackers['human2']  = {'serial': 'LHR-XXXXXXX4', 'yawaxis': 1, 'pitchaxis': 2, 'rollaxis': 0, 'radius': 15, 'labeltext': 'HUM2',  'color': '#FF00FF'};
