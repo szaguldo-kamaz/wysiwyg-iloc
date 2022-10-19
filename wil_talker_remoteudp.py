@@ -27,7 +27,7 @@ if wilobj.config.locdata_source == wilobj.config.LOCDATA_SOURCE_REMOTEUDP:
     print("RemoteUDP to RemoteUDP makes no sense. Exiting.")
     sys.exit(1);
 
-wilobj.calibrate_world(0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0);
+wilobj.calibrate_world(0.0, 0.0, 0.0,  0.0, 0.0,  0.0, 0.0,  0.0, 0.0,  0, 0, 0,  0, 0, 0);
 
 print("Waiting for all the tracked devices to be actually tracked...");
 while not wilobj.all_poses_valid():

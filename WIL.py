@@ -64,8 +64,8 @@ class WIL:
     def get_tracker_serials(self):
         return self.trackers_by_serial.keys();
 
-    def calibrate_world(self, xoffset_world, yoffset_world, zoffset_world, rotoffset_world, rotoffset_trackerself, pixelratio, swapx, swapy, reverse_rotdir):
-        self.locdata.calibrate_world(xoffset_world, yoffset_world, zoffset_world, rotoffset_world, rotoffset_trackerself, pixelratio, swapx, swapy, reverse_rotdir);
+    def calibrate_world(self, xoffset_world, yoffset_world, zoffset_world, yawoffset_world, yawoffset_trackerself, pitchoffset_world, pitchoffset_trackerself, rolloffset_world, rolloffset_trackerself, pixelratio, swapx, swapy, reverse_yawdir, reverse_pitch, reverse_roll):
+        self.locdata.calibrate_world(xoffset_world, yoffset_world, zoffset_world, yawoffset_world, yawoffset_trackerself, pitchoffset_world, pitchoffset_trackerself, rolloffset_world, rolloffset_trackerself, pixelratio, swapx, swapy, reverse_yawdir, reverse_pitch, reverse_roll);
 
     def calibrate_from_file(self, calibdata_filename):
         return self.locdata.calibrate_from_file(calibdata_filename);

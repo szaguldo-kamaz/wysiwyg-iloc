@@ -5,10 +5,10 @@
 #
 # Usage:
 #  mouse dragging with left button pressed: adjust world x, y offset
-#  mouse scrollwheel: adjust world orientation offset
-#  mouse scrollwheel with left button pressed: adjust tracker self orientation offset
+#  mouse scrollwheel: adjust world yaw offset
+#  mouse scrollwheel with left button pressed: adjust tracker self yaw offset
 #  keys + - : adjust pixratio
-#  keys x y r : toggle swap x, y, rotdir
+#  keys x y r : toggle swap x, y, yawdir
 #  key Esc : exit without saving calibration parameters
 #  key Enter : save calibration parameters and exit
 #
@@ -30,7 +30,9 @@ floorprojectionmode = False; # windowed - for testing
 calibdata_filename  = "wil_calibparams.txt";
 default_swapx = False;
 default_swapy = True;
-default_reverse_rotdir = True;
+default_reverse_yawdir   = True;
+default_reverse_pitchdir = False;
+default_reverse_rolldir  = False;
 default_pixelratio = 200;
 windowbackgroundcolor = '#000000';
 linecolor1 = '#FFFFFF';
@@ -50,20 +52,39 @@ else:
 
 # try to read previous calibration config data
 if wilobj.calibrate_from_file(calibdata_filename):
-    [ xoffset_world, yoffset_world, zoffset_world, orientoffset_world, orientoffset_trackerself, pixelratio, swapx, swapy, reverse_rotdir ] = wilobj.get_calibration_data_world();
+
+    [ xoffset_world, yoffset_world, zoffset_world,
+      yawoffset_world, yawoffset_trackerself,
+      pitchoffset_world, pitchoffset_trackerself,
+      rolloffset_world, rolloffset_trackerself,
+      pixelratio, swapx, swapy,
+      reverse_yawdir, reverse_pitchdir, reverse_rolldir ] = wilobj.get_calibration_data_world();
     print("Calibration data loaded from: %s"%(calibdata_filename));
+
 else:
+
     print("Cannot load calibration data from: %s, using default values."%(calibdata_filename));
     xoffset_world = 0.0;
     yoffset_world = 0.0;
     zoffset_world = 0.0;
-    orientoffset_world = 0.0;
-    orientoffset_trackerself   = 0.0;
+    yawoffset_world   = 0.0;
+    pitchoffset_world = 0.0;
+    rolloffset_world  = 0.0;
+    yawoffset_trackerself   = 0.0;
+    pitchoffset_trackerself = 0.0;
+    rolloffset_trackerself  = 0.0;
     pixelratio = default_pixelratio;
     swapx = default_swapx;
     swapy = default_swapy;
-    reverse_rotdir = default_reverse_rotdir;
-    wilobj.calibrate_world(xoffset_world, yoffset_world, zoffset_world, orientoffset_world, orientoffset_trackerself, pixelratio, swapx, swapy, reverse_rotdir);
+    reverse_yawdir   = default_reverse_yawdir;
+    reverse_pitchdir = default_reverse_pitchdir;
+    reverse_rolldir  = default_reverse_rolldir;
+    wilobj.calibrate_world(xoffset_world, yoffset_world, zoffset_world,
+                           yawoffset_world, yawoffset_trackerself,
+                           pitchoffset_world, pitchoffset_trackerself,
+                           rolloffset_world, rolloffset_trackerself,
+                           pixelratio, swapx, swapy,
+                           reverse_yawdir, reverse_pitchdir, reverse_rolldir);
 
 # init gui
 sg.theme('DarkGrey5');
@@ -138,7 +159,7 @@ needoffsetupdate = True;
 offset_label = 0;
 individualtrackermode = False;
 individualtrackermode_whichtracker = 0;
-individualtracker_orientoffset_trackerself = 1;
+individualtracker_yawoffset_trackerself = 1;
 
 print("Waiting for all the tracked devices to appear...");
 while not wilobj.all_poses_valid():
@@ -169,8 +190,12 @@ while True:
             trackedobjs[trackername]['posraw']      = wilobj.trackers[trackername].get_raw_position();
             trackedobjs[trackername]['oriraw']      = wilobj.trackers[trackername].get_raw_orientation_euler_degrees();
             trackedobjs[trackername]['pos']         = wilobj.trackers[trackername].get_position();
-            trackedobjs[trackername]['orideg']      = wilobj.trackers[trackername].get_orientation_degrees();
-            trackedobjs[trackername]['orirad']      = wilobj.trackers[trackername].get_orientation_radians();
+            trackedobjs[trackername]['yawdeg']      = wilobj.trackers[trackername].get_yaw_degrees();
+            trackedobjs[trackername]['yawrad']      = wilobj.trackers[trackername].get_yaw_radians();
+            trackedobjs[trackername]['pitchdeg']    = wilobj.trackers[trackername].get_pitch_degrees();
+            trackedobjs[trackername]['pitchrad']    = wilobj.trackers[trackername].get_pitch_radians();
+            trackedobjs[trackername]['rolldeg']     = wilobj.trackers[trackername].get_roll_degrees();
+            trackedobjs[trackername]['rollrad']     = wilobj.trackers[trackername].get_roll_radians();
             trackedobjs[trackername]['pospixel']    = wilobj.trackers[trackername].get_position_pixel();
             trackedobjs[trackername]['pospixel'][0] = trackedobjs[trackername]['pospixel'][0] + wilobj.config.playareapixels[0]/2;
             trackedobjs[trackername]['pospixel'][1] = trackedobjs[trackername]['pospixel'][1] + wilobj.config.playareapixels[1]/2;
@@ -186,21 +211,21 @@ while True:
             graph.delete_figure(trackedobjs[trackername]['plotorimarkobj']);
             graph.delete_figure(trackedobjs[trackername]['plotlabelobj']);
 
-            trackertext = "%s %03.3f %03.3f %03.3f %03.3f\n      (%03.3f %03.3f %03.3f %03.2f)"%(
+            trackertext = "%s %03.3f %03.3f %03.3f %03.2f %03.2f %03.2f\n      (%03.3f %03.3f %03.3f %03.2f %03.2f %03.2f)"%(
                     trackedobjs[trackername]['plotlabeltext'],
                     trackedobjs[trackername]['pos'][0], trackedobjs[trackername]['pos'][1], trackedobjs[trackername]['pos'][2],
-                    trackedobjs[trackername]['orideg'],
+                    trackedobjs[trackername]['yawdeg'], trackedobjs[trackername]['pitchdeg'], trackedobjs[trackername]['rolldeg'],
                     trackedobjs[trackername]['posraw'][0], trackedobjs[trackername]['posraw'][1], trackedobjs[trackername]['posraw'][2],
-                    trackedobjs[trackername]['oriraw'][2]);
+                    trackedobjs[trackername]['oriraw'][wilobj.trackers[trackername].yawaxis], trackedobjs[trackername]['oriraw'][wilobj.trackers[trackername].pitchaxis], trackedobjs[trackername]['oriraw'][wilobj.trackers[trackername].rollaxis] );
 
             trackedobjs[trackername]['plotobj']        = graph.draw_circle(trackedobjs[trackername]['pospixel'], trackedobjs[trackername]['plotsize'], line_color=trackedobjs[trackername]['color'], fill_color=trackedobjs[trackername]['fillcolor'], line_width=trackedobjs[trackername]['linewidth']);
             trackedobjs[trackername]['plotoriobj']     = draw_rotated_line(graph,
                     [ [ trackedobjs[trackername]['pospixel'][0], trackedobjs[trackername]['pospixel'][1] - trackedobjs[trackername]['plotsize']*2 ], 
                       [ trackedobjs[trackername]['pospixel'][0], trackedobjs[trackername]['pospixel'][1] + trackedobjs[trackername]['plotsize']*2 ] ], 
-                    trackedobjs[trackername]['orirad'], trackedobjs[trackername]['color'], linewidth=5);
+                    trackedobjs[trackername]['yawrad'], trackedobjs[trackername]['color'], linewidth=5);
             trackedobjs[trackername]['plotorimarkobj'] = draw_rotated_circle(graph,
                     trackedobjs[trackername]['pospixel'], trackedobjs[trackername]['plotsize']/2,
-                    trackedobjs[trackername]['orirad'], trackedobjs[trackername]['plotsize']*2, trackedobjs[trackername]['color'], linewidth=3);
+                    trackedobjs[trackername]['yawrad'], trackedobjs[trackername]['plotsize']*2, trackedobjs[trackername]['color'], linewidth=3);
             trackedobjs[trackername]['plotlabelobj']   = graph.draw_text(trackertext,
                     [ trackedobjs[trackername]['pospixel'][0], trackedobjs[trackername]['pospixel'][1] + trackedobjs[trackername]['plotlabeloffset'] ],
                     color=trackedobjs[trackername]['color'], font=statusfont);
@@ -221,7 +246,9 @@ while True:
                 individualtracker_xoffset = wilobj.trackers[individualtrackermode_whichtracker].xoffset_tracker;
                 individualtracker_yoffset = wilobj.trackers[individualtrackermode_whichtracker].yoffset_tracker;
                 individualtracker_zoffset = wilobj.trackers[individualtrackermode_whichtracker].zoffset_tracker;
-                individualtracker_orientoffset_trackerself = wilobj.trackers[individualtrackermode_whichtracker].rotoffset_trackerself_tracker;
+                individualtracker_yawoffset_trackerself   = wilobj.trackers[individualtrackermode_whichtracker].yawoffset_trackerself_tracker;
+                individualtracker_pitchoffset_trackerself = wilobj.trackers[individualtrackermode_whichtracker].pitchoffset_trackerself_tracker;
+                individualtracker_rolloffset_trackerself  = wilobj.trackers[individualtrackermode_whichtracker].rolloffset_trackerself_tracker;
             needoffsetupdate = True;
 
     if event in ["space:65", " "]:
@@ -245,7 +272,7 @@ while True:
         needoffsetupdate = True;
 
     if event in ["r:27", "r"] and not individualtrackermode:
-        reverse_rotdir = not reverse_rotdir;
+        reverse_yawdir = not reverse_yawdir;
         needoffsetupdate = True;
 
     if event in (sg.WIN_CLOSED, 'Escape:9', 'Escape:27'):
@@ -253,11 +280,17 @@ while True:
         break
 
     if event in ("Return:36", "KP_Enter:104", "\n", "\r"):
-        calibdata = "wxoff: %03.3f wyoff: %03.3f wzoff: %03.3f worioff: %05.1f worioff_t: %05.1f pixrat: %d swapx: %d swapy: %d revrot: %d\r\n"%(xoffset_world, yoffset_world, zoffset_world, math.degrees(orientoffset_world), math.degrees(orientoffset_trackerself), pixelratio, swapx, swapy, reverse_rotdir);
+        calibdata = "wxoff: %03.3f wyoff: %03.3f wzoff: %03.3f wyaw: %05.1f wpitch: %05.1f wroll: %05.1f wyaw_t: %05.1f wpitch_t: %05.1f wroll_t: %05.1f pixrat: %d swapx: %d swapy: %d revyaw: %d revpitch: %d revroll: %d\r\n"% \
+                     (xoffset_world, yoffset_world, zoffset_world,
+                      math.degrees(yawoffset_world), math.degrees(pitchoffset_world), math.degrees(rolloffset_world),
+                      math.degrees(yawoffset_trackerself), math.degrees(pitchoffset_trackerself), math.degrees(rolloffset_trackerself),
+                      pixelratio, swapx, swapy, reverse_yawdir, reverse_pitchdir, reverse_rolldir);
         for trackername in trackernames:
             trackcalibdata = wilobj.trackers[trackername].get_calibration_data_tracker();
-            calibdata += "tracker: %s xoff: %03.3f yoff: %03.3f zoff: %03.3f orioff_t: %05.1f\r\n"%(
-                wilobj.config.trackers[trackername]['serial'], trackcalibdata[0], trackcalibdata[1], trackcalibdata[2], math.degrees(trackcalibdata[3]) );
+            calibdata += "tracker: %s xoff: %03.3f yoff: %03.3f zoff: %03.3f yawoff_t: %05.1f pitchoff_t: %05.1f rolloff_t: %05.1f\r\n"%(
+                wilobj.config.trackers[trackername]['serial'],
+                trackcalibdata[0], trackcalibdata[1], trackcalibdata[2],
+                math.degrees(trackcalibdata[3]), math.degrees(trackcalibdata[4]), math.degrees(trackcalibdata[5]) );
 
         if os.path.exists(calibdata_filename):
             calibdata_filename_backup_timestamp = datetime.datetime.today().strftime("_%Y_%m_%d__%H-%M-%S");
@@ -300,52 +333,71 @@ while True:
     if event in ("+SCRDN+", "MouseWheel:Down"):
         if dragpos == [ -1, -1 ]:
             if not individualtrackermode:
-                orientoffset_world -= math.radians(0.5);
-                if orientoffset_world < 0:
-                    orientoffset_world = math.radians(359.5);
+                yawoffset_world -= math.radians(0.5);
+                if yawoffset_world < 0:
+                    yawoffset_world = math.radians(359.5);
         else:
-            temp_orientoffset_trackerself = [ orientoffset_trackerself, individualtracker_orientoffset_trackerself][individualtrackermode] - math.radians(0.5);
-            if temp_orientoffset_trackerself < 0:
-                temp_orientoffset_trackerself = math.radians(359.5);
+            temp_yawoffset_trackerself = [ yawoffset_trackerself, individualtracker_yawoffset_trackerself][individualtrackermode] - math.radians(0.5);
+            if temp_yawoffset_trackerself < 0:
+                temp_yawoffset_trackerself = math.radians(359.5);
             if individualtrackermode:
-                individualtracker_orientoffset_trackerself = temp_orientoffset_trackerself;
+                individualtracker_yawoffset_trackerself = temp_yawoffset_trackerself;
             else:
-                orientoffset_trackerself = temp_orientoffset_trackerself;
+                yawoffset_trackerself = temp_yawoffset_trackerself;
         needoffsetupdate = True;
 
     if event in ("+SCRUP+", "MouseWheel:Up"):
         if dragpos == [ -1, -1 ]:
             if not individualtrackermode:
-                orientoffset_world += math.radians(0.5);
-                if orientoffset_world >= (2*math.pi):
-                    orientoffset_world = 0;
+                yawoffset_world += math.radians(0.5);
+                if yawoffset_world >= (2*math.pi):
+                    yawoffset_world = 0;
         else:
-            temp_orientoffset_trackerself = [ orientoffset_trackerself, individualtracker_orientoffset_trackerself][individualtrackermode] + math.radians(0.5);
-            if temp_orientoffset_trackerself >= (2*math.pi):
-                temp_orientoffset_trackerself = 0;
+            temp_yawoffset_trackerself = [ yawoffset_trackerself, individualtracker_yawoffset_trackerself][individualtrackermode] + math.radians(0.5);
+            if temp_yawoffset_trackerself >= (2*math.pi):
+                temp_yawoffset_trackerself = 0;
             if individualtrackermode:
-                individualtracker_orientoffset_trackerself = temp_orientoffset_trackerself;
+                individualtracker_yawoffset_trackerself = temp_yawoffset_trackerself;
             else:
-                orientoffset_trackerself = temp_orientoffset_trackerself;
+                yawoffset_trackerself = temp_yawoffset_trackerself;
         needoffsetupdate = True;
 
     if needoffsetupdate:
 
         if individualtrackermode:
-            offset_text = "Offset(%s:%s): %03.3f %03.3f %03.3f OriT:%05.1f"%(individualtrackermode_whichtracker, wilobj.config.trackers[individualtrackermode_whichtracker]['serial'], individualtracker_xoffset, individualtracker_yoffset, individualtracker_zoffset, math.degrees(individualtracker_orientoffset_trackerself));
-            wilobj.trackers[individualtrackermode_whichtracker].calibrate_tracker(individualtracker_xoffset, individualtracker_yoffset, individualtracker_zoffset, individualtracker_orientoffset_trackerself);
+            offset_text = "Offset(%s:%s): %03.3f %03.3f %03.3f YawT:%05.1f PitchT:%05.1f RollT:%05.1f"% \
+                          (individualtrackermode_whichtracker, wilobj.config.trackers[individualtrackermode_whichtracker]['serial'],
+                           individualtracker_xoffset, individualtracker_yoffset, individualtracker_zoffset,
+                           math.degrees(individualtracker_yawoffset_trackerself),
+                           math.degrees(individualtracker_pitchoffset_trackerself),
+                           math.degrees(individualtracker_rolloffset_trackerself) );
+            wilobj.trackers[individualtrackermode_whichtracker].calibrate_tracker(
+                    individualtracker_xoffset, individualtracker_yoffset, individualtracker_zoffset,
+                    individualtracker_yawoffset_trackerself, individualtracker_pitchoffset_trackerself, individualtracker_rolloffset_trackerself);
+
         else:
+
             if swapx:           swapx_char = '!';
             else:               swapx_char = ' ';
             if swapy:           swapy_char = '!';
             else:               swapy_char = ' ';
-            if reverse_rotdir:  revrot_char = '!';
-            else:               revrot_char = ' ';
-            offset_text = "Offset: %03.3f%c %03.3f%c %03.3f Ow/Ot:%05.1f/%05.1f%c pixrat: %d"%(xoffset_world, swapx_char, yoffset_world, swapy_char, zoffset_world, math.degrees(orientoffset_world), math.degrees(orientoffset_trackerself), revrot_char, pixelratio);
-            wilobj.calibrate_world(xoffset_world, yoffset_world, zoffset_world, orientoffset_world, orientoffset_trackerself, pixelratio, swapx, swapy, reverse_rotdir);
+            if reverse_yawdir:  revyaw_char = '!';
+            else:               revyaw_char = ' ';
+            offset_text = "Offset: %03.3f%c %03.3f%c %03.3f Yw/Yt:%05.1f/%05.1f%c Pw/Pt:%05.1f/%05.1f Rw/Rt:%05.1f/%05.1f pixrat: %d"% \
+                          (xoffset_world, swapx_char, yoffset_world, swapy_char, zoffset_world,
+                           math.degrees(yawoffset_world), math.degrees(yawoffset_trackerself), revyaw_char,
+                           math.degrees(pitchoffset_world), math.degrees(pitchoffset_trackerself),
+                           math.degrees(rolloffset_world), math.degrees(rolloffset_trackerself),
+                           pixelratio);
+            wilobj.calibrate_world(xoffset_world, yoffset_world, zoffset_world,
+                                   yawoffset_world,   yawoffset_trackerself,
+                                   pitchoffset_world, pitchoffset_trackerself,
+                                   rolloffset_world,  rolloffset_trackerself,
+                                   pixelratio, swapx, swapy,
+                                   reverse_yawdir, reverse_pitchdir, reverse_rolldir);
 
         graph.delete_figure(offset_label);
-        offset_label = graph.draw_text(offset_text, [320, 20], color='#FFFFFF', font=statusfont);
+        offset_label = graph.draw_text(offset_text, [540, 20], color='#FFFFFF', font=statusfont);
         needoffsetupdate = False;
 
 
