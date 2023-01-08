@@ -16,7 +16,7 @@ class WILLocDataLibSurvive(WILLocDataBase):
         WILLocDataBase.__init__(self, roomsize);
         self.ctx = pysurvive.init();
         if self.ctx is None:
-            print("WILLocDataLibSurvive: FATAL: Cannot init pysurvive context!");
+            sys.stderr.writelines("WILLocDataLibSurvive: FATAL: Cannot init pysurvive context!\n");
             sys.exit(1);
         pysurvive.install_button_fn(self.ctx, self.button_func);
         pysurvive.install_pose_fn(self.ctx, self.pose_func);

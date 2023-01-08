@@ -27,9 +27,10 @@ class WILLocDataSteamVR(WILLocDataBase):
                 self.devname_to_serial[device] = trackerserial;
                 self.serial_to_devname[trackerserial] = device;
         if len(self.available_objects) == 0:
-            print("WILLocDataSteamVR: FATAL: No trackable devices were detected! Exit.");
+            sys.stderr.writelines("WILLocDataSteamVR: FATAL: No trackable devices were detected! Exit.\n");
             sys.exit(1);  # should be an exception, maybe later..
-        print("\nBe sure to check that all your trackers were detected! They won't be added later on!\n");
+        if self.verbose:
+            print("\nBe sure to check that all your trackers were detected! They won't be added later on!\n");
 
     def __del__(self):
         pass
@@ -72,10 +73,10 @@ class WILLocDataSteamVR(WILLocDataBase):
 
     def add_tracker_by_serial(self, trackerserial):
         if trackerserial not in self.available_objects:
-            print("WILLocDataSteamVR: FATAL: Tracker with serial %s not found! Check SteamVR?"%(trackerserial));
+            sys.stderr.writelines("WILLocDataSteamVR: FATAL: Tracker with serial %s not found! Check SteamVR?\n"%(trackerserial));
             sys.exit(0);
         if trackerserial not in self.tracked_objects.keys():
             self.tracked_objects[trackerserial] = self.WILTracker(trackerserial, self);
             return self.tracked_objects[trackerserial]
         else:
-            print("WILLocDataSteamVR: WARN: Tracker with serial %s already added!"%(trackerserial));
+            sys.stderr.writelines("WILLocDataSteamVR: WARN: Tracker with serial %s already added!\n"%(trackerserial));

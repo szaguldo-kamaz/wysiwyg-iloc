@@ -9,7 +9,7 @@
 #
 
 from WIL_LocDataBase import WILLocDataBase
-import time, struct
+import time, struct, sys
 
 
 class WILLocDataFile(WILLocDataBase):
@@ -43,7 +43,7 @@ class WILLocDataFile(WILLocDataBase):
         while (time.time() - self.start_real_timestamp) > self.elapsed_filetime:
             trackerserial = self.dataline[1];
             if trackerserial not in self.tracked_objects.keys():
-                print("WARNING: Unrecognized tracker:", trackerserial);
+                sys.stderr.writelines("WIL_LocDataFile: WARNING: Unrecognized tracker: %s\n"%(trackerserial));
             else:
                 if self.datatype == 2:
                     self.tracked_objects[trackerserial].pose = list(map(float, self.dataline[2:5])) + [0.0]*4;
@@ -55,7 +55,7 @@ class WILLocDataFile(WILLocDataBase):
             self.dataline = self.datafile.readline().strip().split(',');
             if self.dataline == ['']:
                 self.eofreached = True;
-                print("WIL_LocDataFile: EOF reached. No more pose updates!");
+                sys.stderr.writelines("WIL_LocDataFile: EOF reached. No more pose updates!\n");
                 break
             else:
                 self.dataline_timestamp = float(self.dataline[0]);

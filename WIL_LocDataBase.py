@@ -219,7 +219,7 @@ class WILLocDataBase:
             calibdata = calibdatafile.readlines();
             calibdatafile.close();
             if len(calibdata) == 0:
-                print("Empty calibration config file?");
+                sys.stderr.writelines("WIL_LocDataBase: Empty calibration config file?\n");
                 sys.exit(1);
 
             linezerosplit = calibdata[0].split();
@@ -227,7 +227,7 @@ class WILLocDataBase:
             gwcount = 0;
             for goodkeyword in [ "wxoff", "wyoff", "wzoff", "wyaw", "wpitch", "wroll", "wyaw_t", "wpitch_t", "wroll_t", "pixrat", "swapx", "swapy", "revyaw", "revpitch", "revroll" ]:
                 if linezerosplit[gwcount] != goodkeyword + ":":
-                    print("Bad calibration config file: line 0, keyword %d should be %s!"%(gwcount/2, goodkeyword));
+                    sys.stderr.writelines("WIL_LocDataBase: Bad calibration config file: line 0, keyword %d should be %s!\n"%(gwcount/2, goodkeyword));
                     sys.exit(1);
                 gwcount += 2;
 
@@ -269,13 +269,13 @@ class WILLocDataBase:
                     gwcount = 0;
                     for goodkeyword in [ "tracker", "xoff", "yoff", "zoff", "yawoff_t", "pitchoff_t", "rolloff_t" ]:
                         if trackeradjustlinesplit[gwcount] != goodkeyword + ":":
-                            print("Bad calibration config file: line %d, keyword %d should be %s!"%(currlinecount, gwcount/2, goodkeyword));
+                            sys.stderr.writelines("WIL_LocDataBase: Bad calibration config file: line %d, keyword %d should be %s!\n"%(currlinecount, gwcount/2, goodkeyword));
                             sys.exit(1);
                         gwcount += 2;
 
                     trackerserial = trackeradjustlinesplit[1];
                     if trackerserial not in self.tracked_objects.keys():
-                        print("WARNING: Possibly bad calibration config file: line %d: no such tracker listed in wilconfig: %s!"%(currlinecount, trackeradjustlinesplit[1]));
+                        sys.stderr.writelines("WIL_LocDataBase: WARNING: Possibly bad calibration config file: line %d: no such tracker listed in wilconfig: %s!\n"%(currlinecount, trackeradjustlinesplit[1]));
 #                        sys.exit(1);
 
                     xoffset_tracker = float(trackeradjustlinesplit[3]);

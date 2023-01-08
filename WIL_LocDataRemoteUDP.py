@@ -8,7 +8,7 @@
 #
 
 from WIL_LocDataBase import WILLocDataBase
-import socket, select, struct
+import socket, select, struct, sys
 
 
 class WILLocDataRemoteUDP(WILLocDataBase):
@@ -32,7 +32,7 @@ class WILLocDataRemoteUDP(WILLocDataBase):
             if self.sock_trackerinfo in sockreadable:
                 data, addr = self.sock_trackerinfo.recvfrom(72);
                 if len(data) < 72:
-                    print("WILLocDataRemoteUDP.update: Dropped too small (%d bytes data) packet! Contents: -%s-"%(len(data), data));
+                    sys.stderr.writelines("WILLocDataRemoteUDP.update_poses_from_src: Dropped too small (%d bytes data) packet! Contents: -%s-\n"%(len(data), data));
                     return
 
                 packetno_recv = (data[0] << 8) + data[1];
