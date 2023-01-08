@@ -26,7 +26,8 @@ class WILLocDataRemoteUDP(WILLocDataBase):
         self.sock_trackerinfo.close();
 
 
-    def update(self):
+    def update_poses_from_src(self):
+
         sockreadable, _, _ = select.select([self.sock_trackerinfo], [], [], 0);
         while len(sockreadable) > 0:
             if self.sock_trackerinfo in sockreadable:

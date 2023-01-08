@@ -228,14 +228,21 @@ while True:
                         trackedobjs[trackername]['posraw'][0], trackedobjs[trackername]['posraw'][1], trackedobjs[trackername]['posraw'][2],
                         trackedobjs[trackername]['oriraw'][wilobj.trackers[trackername].yawaxis], trackedobjs[trackername]['oriraw'][wilobj.trackers[trackername].pitchaxis], trackedobjs[trackername]['oriraw'][wilobj.trackers[trackername].rollaxis] );
 
-                trackedobjs[trackername]['plotobj']        = graph.draw_circle(trackedobjs[trackername]['pospixel'], trackedobjs[trackername]['plotsize'], line_color=trackedobjs[trackername]['color'], fill_color=trackedobjs[trackername]['fillcolor'], line_width=trackedobjs[trackername]['linewidth']);
-                trackedobjs[trackername]['plotoriobj']     = draw_rotated_line(graph,
-                        [ [ trackedobjs[trackername]['pospixel'][0], trackedobjs[trackername]['pospixel'][1] - trackedobjs[trackername]['plotsize']*2 ], 
-                          [ trackedobjs[trackername]['pospixel'][0], trackedobjs[trackername]['pospixel'][1] + trackedobjs[trackername]['plotsize']*2 ] ], 
-                        trackedobjs[trackername]['yawrad'], trackedobjs[trackername]['color'], linewidth=5);
-                trackedobjs[trackername]['plotorimarkobj'] = draw_rotated_circle(graph,
-                        trackedobjs[trackername]['pospixel'], trackedobjs[trackername]['plotsize']/2,
-                        trackedobjs[trackername]['yawrad'], trackedobjs[trackername]['plotsize']*2, trackedobjs[trackername]['color'], linewidth=3);
+                if wilobj.trackers[trackername].trackertype == 2:  # pointer tracker
+                    trackedobjs[trackername]['plotobj'] = graph.draw_circle(trackedobjs[trackername]['pospixel'], plotsize_small * (1 + 2*wilobj.trackers[trackername].buttons['trigger']), line_color=trackedobjs[trackername]['color'], fill_color=trackedobjs[trackername]['color'], line_width=trackedobjs[trackername]['linewidth']);
+                    # permanent
+                    if wilobj.trackers[trackername].buttons['trackpad_press']:
+                        graph.draw_circle(trackedobjs[trackername]['pospixel'], plotsize_small/2, line_color=trackedobjs[trackername]['color'], fill_color=trackedobjs[trackername]['color'], line_width=trackedobjs[trackername]['linewidth']);
+
+                else:
+                    trackedobjs[trackername]['plotobj']        = graph.draw_circle(trackedobjs[trackername]['pospixel'], trackedobjs[trackername]['plotsize'], line_color=trackedobjs[trackername]['color'], fill_color=trackedobjs[trackername]['fillcolor'], line_width=trackedobjs[trackername]['linewidth']);
+                    trackedobjs[trackername]['plotoriobj']     = draw_rotated_line(graph,
+                            [ [ trackedobjs[trackername]['pospixel'][0], trackedobjs[trackername]['pospixel'][1] - trackedobjs[trackername]['plotsize']*2 ],
+                              [ trackedobjs[trackername]['pospixel'][0], trackedobjs[trackername]['pospixel'][1] + trackedobjs[trackername]['plotsize']*2 ] ],
+                            trackedobjs[trackername]['yawrad'], trackedobjs[trackername]['color'], linewidth=5);
+                    trackedobjs[trackername]['plotorimarkobj'] = draw_rotated_circle(graph,
+                            trackedobjs[trackername]['pospixel'], trackedobjs[trackername]['plotsize']/2,
+                            trackedobjs[trackername]['yawrad'], trackedobjs[trackername]['plotsize']*2, trackedobjs[trackername]['color'], linewidth=3);
 
                 trackedobjs[trackername]['plotlabelobj']   = graph.draw_text(trackertext,
                         [ trackedobjs[trackername]['pospixel'][0], trackedobjs[trackername]['pospixel'][1] + trackedobjs[trackername]['plotlabeloffset'] ],
@@ -301,6 +308,8 @@ while True:
                       math.degrees(yawoffset_trackerself), math.degrees(pitchoffset_trackerself), math.degrees(rolloffset_trackerself),
                       pixelratio, swapx, swapy, reverse_yawdir, reverse_pitchdir, reverse_rolldir);
         for trackername in trackernames:
+            if trackername[-4:] == '-PTR':  # exclude pointer trackers, as those are redundant
+                continue
             trackcalibdata = wilobj.trackers[trackername].get_calibration_data_tracker();
             calibdata += "tracker: %s xoff: %03.3f yoff: %03.3f zoff: %03.3f yawoff_t: %05.1f pitchoff_t: %05.1f rolloff_t: %05.1f\r\n"%(
                 wilobj.config.trackers[trackername]['serial'],

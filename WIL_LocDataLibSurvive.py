@@ -24,7 +24,7 @@ class WILLocDataLibSurvive(WILLocDataBase):
     def __del__(self):
         pysurvive.close(self.ctx);
 
-    def update(self):
+    def update_poses_from_src(self):
         return pysurvive.poll(self.ctx);
 
     def pose_func(self, obj, timecode, pose):

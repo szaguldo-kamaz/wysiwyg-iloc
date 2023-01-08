@@ -58,6 +58,8 @@ while True:
         break
 
     for trackername in wilobj.get_tracker_names():
+        if wilobj.trackers[trackername].trackertype == 2:  # don't save PTR, those can/should be recalculated
+            continue
         trackerpos = wilobj.trackers[trackername].get_raw_position();
         if dataout_orient_euler:
             trackerorie = wilobj.trackers[trackername].get_raw_orientation_euler_degrees();

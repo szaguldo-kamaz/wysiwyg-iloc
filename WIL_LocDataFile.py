@@ -35,7 +35,11 @@ class WILLocDataFile(WILLocDataBase):
         self.datafile.close();
 
 
-    def update(self):
+    def update_poses_from_src(self):
+        return self.update_poses_from_src_timebase(time.time());
+
+
+    def update_poses_from_src_timebase(self):
 
         if self.eofreached:
             return 0

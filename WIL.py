@@ -44,11 +44,14 @@ class WIL:
             print("Unknown LocData_source was specified. Exiting.");
             sys.exit(1);  # should be an exception. maybe later...
 
-        for trackername in self.config.trackers.keys():
+        for trackername in list(self.config.trackers.keys()):  # list to make a copy, because pointer_trackers can be added inside this loop
             self.add_tracker(trackername, self.config.trackers[trackername]['serial']);
             self.trackers[trackername].set_yawaxis(self.config.trackers[trackername]['yawaxis']);
             self.trackers[trackername].set_pitchaxis(self.config.trackers[trackername]['pitchaxis']);
             self.trackers[trackername].set_rollaxis(self.config.trackers[trackername]['rollaxis']);
+            if 'pointer' in self.config.trackers[trackername].keys() and \
+               self.config.trackers[trackername]['pointer'] == True:
+                self.add_pointer_tracker(trackername, self.config.trackers[trackername]['serial']);
 
     def set_verbose(self, verbose):
         self.verbose = verbose;
@@ -57,6 +60,12 @@ class WIL:
     def add_tracker(self, trackername, trackerserial):
         self.trackers_by_serial[trackerserial] = self.locdata.add_tracker_by_serial(trackerserial);
         self.trackers[trackername] = self.trackers_by_serial[trackerserial];
+
+    def add_pointer_tracker(self, trackername, trackerserial):
+        self.trackers_by_serial[trackerserial+'-PTR'] = self.locdata.add_pointer_tracker(self.trackers[trackername]);
+        self.trackers[trackername+'-PTR'] = self.trackers_by_serial[trackerserial+'-PTR'];
+        self.config.trackers[trackername+'-PTR'] = self.config.trackers[trackername].copy();
+        self.config.trackers[trackername+'-PTR']['labeltext'] = self.config.trackers[trackername]['labeltext'] + '-PTR';
 
     def get_tracker_names(self):
         return list(self.trackers.keys());

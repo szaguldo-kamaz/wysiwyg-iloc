@@ -33,7 +33,7 @@ class WILLocDataROS(WILLocDataBase):
         self.ros_subscribers = {};
         rospy.init_node('wil');
 
-    def update(self):
+    def update_poses_from_src(self):
 
         for serial in self.ros_subscribers.keys():
             self.tracked_objects[serial].pose = self.ros_subscribers[serial].get_pose();

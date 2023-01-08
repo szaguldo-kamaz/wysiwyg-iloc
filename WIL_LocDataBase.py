@@ -13,24 +13,46 @@ class WILLocDataBase:
 
     class WILTracker:
 
-        def __init__(self, trackerserial, wldbobj):
+        def __init__(self, trackerserial, wldbobj, reftrackerobj = None):
             self.serial = trackerserial;
+            self.wldbobj = wldbobj;
             self.timecode = 0;
             self.pose = None;
             self.pose_euler_deg = None;
             self.buttons = { 'system': False, 'trigger': False, 'menu': False, 'grip': False,
                              'trackpad_press': False, 'trackpad_touch': False,
                              'trackpad_x': 0.0, 'trackpad_y': 0.0 };
-            self.yawaxis   = 0;
-            self.pitchaxis = 1;
-            self.rollaxis  = 2;
-            self.wldbobj = wldbobj;
-            self.xoffset_tracker = 0.0;
-            self.yoffset_tracker = 0.0;
-            self.zoffset_tracker = 0.0;
-            self.yawoffset_trackerself_tracker   = 0.0;
-            self.pitchoffset_trackerself_tracker = 0.0;
-            self.rolloffset_trackerself_tracker  = 0.0;
+            if reftrackerobj == None:
+                self.parenttrackerobj = None;
+                self.trackertype = 1;
+                self.yawaxis   = 0;
+                self.pitchaxis = 1;
+                self.rollaxis  = 2;
+                self.xoffset_tracker = 0.0;
+                self.yoffset_tracker = 0.0;
+                self.zoffset_tracker = 0.0;
+                self.yawoffset_trackerself_tracker   = 0.0;  # radians
+                self.pitchoffset_trackerself_tracker = 0.0;  # radians
+                self.rolloffset_trackerself_tracker  = 0.0;  # radians
+            else:
+                self.parenttrackerobj = reftrackerobj;
+                self.trackertype = 2;
+                self.yawaxis   = reftrackerobj.yawaxis;  # copy?
+                self.pitchaxis = reftrackerobj.pitchaxis;
+                self.rollaxis  = reftrackerobj.rollaxis;
+                self.xoffset_tracker = reftrackerobj.xoffset_tracker;
+                self.yoffset_tracker = reftrackerobj.yoffset_tracker;
+                self.zoffset_tracker = reftrackerobj.zoffset_tracker;
+                self.yawoffset_trackerself_tracker   = reftrackerobj.yawoffset_trackerself_tracker;    # radians
+                self.pitchoffset_trackerself_tracker = reftrackerobj.pitchoffset_trackerself_tracker;  # radians
+                self.rolloffset_trackerself_tracker  = reftrackerobj.rolloffset_trackerself_tracker;   # radians
+
+
+        def update_from_parent(self):
+            if self.parenttrackerobj != None:
+                self.pose = self.parenttrackerobj.get_raw_position() + self.parenttrackerobj.get_raw_orientation_quat();
+                self.pose_euler_deg = self.pose[0:3] + self.parenttrackerobj.get_raw_orientation_euler_degrees();
+                self.buttons = self.parenttrackerobj.buttons;
 
         def get_raw_position(self):
             return self.pose[0:3];
@@ -64,11 +86,25 @@ class WILLocDataBase:
                           rotatedpos[1] + self.wldbobj.yoffset_world + self.yoffset_tracker,
                           rawpos[2]     + self.wldbobj.zoffset_world + self.zoffset_tracker ];
 
+            if self.trackertype == 2:  # "pointer" tracker
+                if 180.0 < self.get_pitch_degrees() < 270.0:  # 180 - straight (horizontal), 270 down (vertical)
+                    pointer_r = math.tan(math.pi*1.5 - self.get_pitch_radians()) * (rawpos[2] + self.wldbobj.zoffset_world + self.zoffset_tracker);  # rawpos[2] should be z (height)
+                    pointer_th = self.get_yaw_radians() - math.pi/2;
+                    pointer_offpos = self.wldbobj.polar2rect(pointer_r, pointer_th);
+                    offrotpos[0] += pointer_offpos[0];
+                    offrotpos[1] += pointer_offpos[1];
+                    offrotpos[2] = 0.0;
+                else:
+                    offrotpos = None;
+
             return offrotpos
 
         def get_position_pixel(self):
             trackpos = self.get_position();
-            return [ trackpos[0] * self.wldbobj.pixelratio, trackpos[1] * self.wldbobj.pixelratio ];
+            if trackpos != None:
+                return [ trackpos[0] * self.wldbobj.pixelratio, trackpos[1] * self.wldbobj.pixelratio, trackpos[2] * self.wldbobj.pixelratio ];
+            else:
+                return None
 
         def get_orientation_radians(self, whichaxis, offset_trackerself_world, offset_trackerself_tracker, reversedir):
             orientation_radians = self.get_raw_orientation_euler_radians();
@@ -277,6 +313,8 @@ class WILLocDataBase:
                         gwcount += 2;
 
                     trackerserial = trackeradjustlinesplit[1];
+                    if trackerserial[-4:] == '-PTR':  # pointer trackers should not be in the config file, but skip them, just in case
+                        continue
                     if trackerserial not in self.tracked_objects.keys():
                         sys.stderr.writelines("WIL_LocDataBase: WARNING: Possibly bad calibration config file: line %d: no such tracker listed in wilconfig: %s!\n"%(currlinecount, trackeradjustlinesplit[1]));
 #                        sys.exit(1);
@@ -321,3 +359,15 @@ class WILLocDataBase:
             self.tracked_objects[trackerserial] = self.WILTracker(trackerserial, self);
             self.all_tracked_objs_have_valid_pose = False;
             return self.tracked_objects[trackerserial];
+
+    def update(self):
+        retcode = self.update_poses_from_src();
+        # PTR trackers
+        for trackobjname in self.tracked_objects.keys():
+            if self.tracked_objects[trackobjname].trackertype == 2:
+                self.tracked_objects[trackobjname].update_from_parent();
+        return retcode
+
+    def add_pointer_tracker(self, trackerobj):
+        self.tracked_objects[trackerobj.serial + '-PTR'] = self.WILTracker(trackerobj.serial + '-PTR', self, trackerobj);
+        return self.tracked_objects[trackerobj.serial + '-PTR']

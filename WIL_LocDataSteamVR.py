@@ -35,8 +35,13 @@ class WILLocDataSteamVR(WILLocDataBase):
     def __del__(self):
         pass
 
-    def update(self):
+    def update_poses_from_src(self):
+
         for trackerserial in self.tracked_objects.keys():
+
+            # "pointer" tracker
+            if self.tracked_objects[trackerserial].trackertype == 2:
+                continue
 
             # this is only for VIVE Controllers
             buttons = self.wil_triadopenvr.devices[self.serial_to_devname[trackerserial]].get_controller_inputs();
