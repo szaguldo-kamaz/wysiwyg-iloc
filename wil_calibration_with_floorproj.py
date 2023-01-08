@@ -160,6 +160,8 @@ offset_label = 0;
 individualtrackermode = False;
 individualtrackermode_whichtracker = 0;
 individualtracker_yawoffset_trackerself = 1;
+paused = False;
+
 
 print("Waiting for all the tracked devices to appear...");
 while not wilobj.all_poses_valid():
@@ -173,9 +175,14 @@ while True:
 
     event, values = window.read(1);
 
-    if wilobj.update() != 0:
-        print("WIL update error!");
-        break
+    if event in ["space:65", " "]:
+        paused = not paused;
+        needoffsetupdate = True;
+
+    if not paused:
+        if wilobj.update() != 0:
+            print("WIL update error!");
+            break
 
     if wilobj.all_poses_valid():
 
