@@ -42,6 +42,6 @@ class WILLocDataLibSurvive(WILLocDataBase):
         else:
             if buttonid == 3:  # sys button on tracker
                 if   eventtype == pysurvive.SURVIVE_INPUT_EVENT_BUTTON_UP:
-                    self.tracked_objects[trackerserial].button = 1;
+                    self.tracked_objects[trackerserial].buttons['system'] = True;
                 elif eventtype == pysurvive.SURVIVE_INPUT_EVENT_BUTTON_DOWN:
-                    self.tracked_objects[trackerserial].button = 0;
+                    self.tracked_objects[trackerserial].buttons['system'] = False;

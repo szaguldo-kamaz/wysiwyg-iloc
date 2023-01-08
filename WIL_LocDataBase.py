@@ -18,7 +18,9 @@ class WILLocDataBase:
             self.timecode = 0;
             self.pose = None;
             self.pose_euler_deg = None;
-            self.button = 0;
+            self.buttons = { 'system': False, 'trigger': False, 'menu': False, 'grip': False,
+                             'trackpad_press': False, 'trackpad_touch': False,
+                             'trackpad_x': 0.0, 'trackpad_y': 0.0 };
             self.yawaxis   = 0;
             self.pitchaxis = 1;
             self.rollaxis  = 2;
@@ -98,12 +100,13 @@ class WILLocDataBase:
         def get_roll_degrees(self):
             return math.degrees(self.get_roll_radians());
 
-        def was_button_pressed(self):
-            if self.button == 1:
-                self.button = 0;
-                return True
-            else:
-                return False
+        def was_button_pressed(self, whichbuttons):
+            retval = False;
+            for button in whichbuttons:
+                if self.buttons[button]:
+                    self.buttons[button] = False;
+                    retval = True;
+            return retval
 
         def set_yawaxis(self, yawaxisno):
             self.yawaxis = yawaxisno;

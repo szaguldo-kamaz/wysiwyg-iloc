@@ -188,7 +188,7 @@ while True:
 
         for trackername in trackernames:
 
-            if wilobj.trackers[trackername].was_button_pressed():
+            if wilobj.trackers[trackername].was_button_pressed(['system', 'menu']):
                 if trackedobjs[trackername]['plotsize'] == plotsize_small:
                     trackedobjs[trackername]['plotsize'] = plotsize_large;
                 else:
@@ -204,13 +204,6 @@ while True:
             trackedobjs[trackername]['rolldeg']     = wilobj.trackers[trackername].get_roll_degrees();
             trackedobjs[trackername]['rollrad']     = wilobj.trackers[trackername].get_roll_radians();
             trackedobjs[trackername]['pospixel']    = wilobj.trackers[trackername].get_position_pixel();
-            trackedobjs[trackername]['pospixel'][0] = trackedobjs[trackername]['pospixel'][0] + wilobj.config.playareapixels[0]/2;
-            trackedobjs[trackername]['pospixel'][1] = trackedobjs[trackername]['pospixel'][1] + wilobj.config.playareapixels[1]/2;
-
-            if trackedobjs[trackername]['pospixel'][1] < trackedobjs[trackername]['plotsize'] + 80:
-                trackedobjs[trackername]['plotlabeloffset'] = trackedobjs[trackername]['plotsize'] + 40;
-            else:
-                trackedobjs[trackername]['plotlabeloffset'] = -trackedobjs[trackername]['plotsize'] - 40;
 
             graph.delete_figure(trackedobjs[trackername]['plotobj']);
             graph.delete_figure(trackedobjs[trackername]['plotselectedobj']);
@@ -218,26 +211,41 @@ while True:
             graph.delete_figure(trackedobjs[trackername]['plotorimarkobj']);
             graph.delete_figure(trackedobjs[trackername]['plotlabelobj']);
 
-            trackertext = "%s %03.3f %03.3f %03.3f %03.2f %03.2f %03.2f\n      (%03.3f %03.3f %03.3f %03.2f %03.2f %03.2f)"%(
-                    trackedobjs[trackername]['plotlabeltext'],
-                    trackedobjs[trackername]['pos'][0], trackedobjs[trackername]['pos'][1], trackedobjs[trackername]['pos'][2],
-                    trackedobjs[trackername]['yawdeg'], trackedobjs[trackername]['pitchdeg'], trackedobjs[trackername]['rolldeg'],
-                    trackedobjs[trackername]['posraw'][0], trackedobjs[trackername]['posraw'][1], trackedobjs[trackername]['posraw'][2],
-                    trackedobjs[trackername]['oriraw'][wilobj.trackers[trackername].yawaxis], trackedobjs[trackername]['oriraw'][wilobj.trackers[trackername].pitchaxis], trackedobjs[trackername]['oriraw'][wilobj.trackers[trackername].rollaxis] );
+            if trackedobjs[trackername]['pospixel'] != None:
 
-            trackedobjs[trackername]['plotobj']        = graph.draw_circle(trackedobjs[trackername]['pospixel'], trackedobjs[trackername]['plotsize'], line_color=trackedobjs[trackername]['color'], fill_color=trackedobjs[trackername]['fillcolor'], line_width=trackedobjs[trackername]['linewidth']);
-            trackedobjs[trackername]['plotoriobj']     = draw_rotated_line(graph,
-                    [ [ trackedobjs[trackername]['pospixel'][0], trackedobjs[trackername]['pospixel'][1] - trackedobjs[trackername]['plotsize']*2 ], 
-                      [ trackedobjs[trackername]['pospixel'][0], trackedobjs[trackername]['pospixel'][1] + trackedobjs[trackername]['plotsize']*2 ] ], 
-                    trackedobjs[trackername]['yawrad'], trackedobjs[trackername]['color'], linewidth=5);
-            trackedobjs[trackername]['plotorimarkobj'] = draw_rotated_circle(graph,
-                    trackedobjs[trackername]['pospixel'], trackedobjs[trackername]['plotsize']/2,
-                    trackedobjs[trackername]['yawrad'], trackedobjs[trackername]['plotsize']*2, trackedobjs[trackername]['color'], linewidth=3);
-            trackedobjs[trackername]['plotlabelobj']   = graph.draw_text(trackertext,
-                    [ trackedobjs[trackername]['pospixel'][0], trackedobjs[trackername]['pospixel'][1] + trackedobjs[trackername]['plotlabeloffset'] ],
-                    color=trackedobjs[trackername]['color'], font=statusfont);
-            if individualtrackermode and individualtrackermode_whichtracker == trackername:
-                trackedobjs[trackername]['plotselectedobj'] = graph.draw_circle(trackedobjs[trackername]['pospixel'], trackedobjs[trackername]['plotsize'] + 40, line_color='white', line_width=5);
+                trackedobjs[trackername]['pospixel'][0] = trackedobjs[trackername]['pospixel'][0] + wilobj.config.playareapixels[0]/2;
+                trackedobjs[trackername]['pospixel'][1] = trackedobjs[trackername]['pospixel'][1] + wilobj.config.playareapixels[1]/2;
+
+                if trackedobjs[trackername]['pospixel'][1] < trackedobjs[trackername]['plotsize'] + 80:
+                    trackedobjs[trackername]['plotlabeloffset'] = trackedobjs[trackername]['plotsize'] + 40;
+                else:
+                    trackedobjs[trackername]['plotlabeloffset'] = -trackedobjs[trackername]['plotsize'] - 40;
+
+                trackertext = "%s %03.3f %03.3f %03.3f %03.2f %03.2f %03.2f\n      (%03.3f %03.3f %03.3f %03.2f %03.2f %03.2f)"%(
+                        trackedobjs[trackername]['plotlabeltext'],
+                        trackedobjs[trackername]['pos'][0], trackedobjs[trackername]['pos'][1], trackedobjs[trackername]['pos'][2],
+                        trackedobjs[trackername]['yawdeg'], trackedobjs[trackername]['pitchdeg'], trackedobjs[trackername]['rolldeg'],
+                        trackedobjs[trackername]['posraw'][0], trackedobjs[trackername]['posraw'][1], trackedobjs[trackername]['posraw'][2],
+                        trackedobjs[trackername]['oriraw'][wilobj.trackers[trackername].yawaxis], trackedobjs[trackername]['oriraw'][wilobj.trackers[trackername].pitchaxis], trackedobjs[trackername]['oriraw'][wilobj.trackers[trackername].rollaxis] );
+
+                trackedobjs[trackername]['plotobj']        = graph.draw_circle(trackedobjs[trackername]['pospixel'], trackedobjs[trackername]['plotsize'], line_color=trackedobjs[trackername]['color'], fill_color=trackedobjs[trackername]['fillcolor'], line_width=trackedobjs[trackername]['linewidth']);
+                trackedobjs[trackername]['plotoriobj']     = draw_rotated_line(graph,
+                        [ [ trackedobjs[trackername]['pospixel'][0], trackedobjs[trackername]['pospixel'][1] - trackedobjs[trackername]['plotsize']*2 ], 
+                          [ trackedobjs[trackername]['pospixel'][0], trackedobjs[trackername]['pospixel'][1] + trackedobjs[trackername]['plotsize']*2 ] ], 
+                        trackedobjs[trackername]['yawrad'], trackedobjs[trackername]['color'], linewidth=5);
+                trackedobjs[trackername]['plotorimarkobj'] = draw_rotated_circle(graph,
+                        trackedobjs[trackername]['pospixel'], trackedobjs[trackername]['plotsize']/2,
+                        trackedobjs[trackername]['yawrad'], trackedobjs[trackername]['plotsize']*2, trackedobjs[trackername]['color'], linewidth=3);
+
+                trackedobjs[trackername]['plotlabelobj']   = graph.draw_text(trackertext,
+                        [ trackedobjs[trackername]['pospixel'][0], trackedobjs[trackername]['pospixel'][1] + trackedobjs[trackername]['plotlabeloffset'] ],
+                        color=trackedobjs[trackername]['color'], font=statusfont);
+
+                if individualtrackermode and individualtrackermode_whichtracker == trackername:
+                    trackedobjs[trackername]['plotselectedobj'] = graph.draw_circle(trackedobjs[trackername]['pospixel'], trackedobjs[trackername]['plotsize'] + 40, line_color='white', line_width=5);
+
+            else:  # pospixel is None
+                trackedobjs[trackername]['plotobj'] = 0;
 
 
     if event in ["1:10", "1", "2:11", "2", "3:12", "3", "4:13", "4", "5:14", "5", "6:15", "6", "7:16", "7", "8:17", "8", "9:18", "9", "0:19", "0"]:

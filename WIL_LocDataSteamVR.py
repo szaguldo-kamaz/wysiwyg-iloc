@@ -37,16 +37,16 @@ class WILLocDataSteamVR(WILLocDataBase):
 
     def update(self):
         for trackerserial in self.tracked_objects.keys():
-# This does not seem to do anything for VIVE Trackers
-#            buttons = self.wil_triadopenvr.devices[devname].get_controller_inputs();
-#            if buttons['ulButtonPressed'] != 0:
-#                print("BUTTONS:",buttons['ulButtonPressed']);
-#            print(buttons);
 
-            pose_euler = self.wil_triadopenvr.devices[self.serial_to_devname[trackerserial]].get_pose_euler();
-            if pose_euler != None:
-                [x, y, z, orx, orz, ory] = pose_euler;
-                self.tracked_objects[trackerserial].pose_euler_deg = [x, z, y, orx, orz, ory];
+            # this is only for VIVE Controllers
+            buttons = self.wil_triadopenvr.devices[self.serial_to_devname[trackerserial]].get_controller_inputs();
+            self.tracked_objects[trackerserial].buttons['trigger'] = buttons['trigger'];
+            self.tracked_objects[trackerserial].buttons['menu'] = buttons['menu_button'];
+            self.tracked_objects[trackerserial].buttons['trackpad_press'] = buttons['trackpad_pressed'];
+            self.tracked_objects[trackerserial].buttons['grip'] = buttons['grip_button'];
+            self.tracked_objects[trackerserial].buttons['trackpad_touch'] = buttons['trackpad_touched'];
+            self.tracked_objects[trackerserial].buttons['trackpad_x'] = buttons['trackpad_x'];
+            self.tracked_objects[trackerserial].buttons['trackpad_y'] = buttons['trackpad_y'];
 
             try:  # sometimes get_pose fails, with math errors (divby0, etc.)...
                 posequat = self.wil_triadopenvr.devices[self.serial_to_devname[trackerserial]].get_pose_quaternion();

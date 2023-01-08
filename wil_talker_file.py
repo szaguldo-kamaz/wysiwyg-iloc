@@ -66,6 +66,8 @@ while True:
             trackeroriq = wilobj.trackers[trackername].get_raw_orientation_quat();
             dataout.write("%s,%s,%f,%f,%f,%f,%f,%f,%f\r\n"%(time.time(), wilobj.trackers[trackername].serial, trackerpos[0], trackerpos[1], trackerpos[2], trackeroriq[0], trackeroriq[1], trackeroriq[2], trackeroriq[3]));
 
+        dataout.write("%s,*%s,%d,%d,%d,%f,%d,%d,%f,%f\r\n"%(time.time(), wilobj.trackers[trackername].serial, wilobj.trackers[trackername].buttons['system'], wilobj.trackers[trackername].buttons['menu'], wilobj.trackers[trackername].buttons['grip'], wilobj.trackers[trackername].buttons['trigger'], wilobj.trackers[trackername].buttons['trackpad_press'], wilobj.trackers[trackername].buttons['trackpad_touch'], wilobj.trackers[trackername].buttons['trackpad_x'], wilobj.trackers[trackername].buttons['trackpad_y']));
+
     time.sleep(datagatherinterval);
 
 dateout.close();

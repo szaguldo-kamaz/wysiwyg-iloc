@@ -23,7 +23,7 @@ class WILRemoteUDP:
     def send(self, tracker):
         trackerpos    = tracker.get_raw_position();
         trackeroriq   = tracker.get_raw_orientation_quat();
-        trackerbutton = tracker.was_button_pressed();
+        trackerbutton = tracker.was_button_pressed(["system", "trigger"]);
         trackerserial = tracker.serial;
         self.send_rawdata(trackerpos, trackeroriq, trackerbutton, trackerserial);
 

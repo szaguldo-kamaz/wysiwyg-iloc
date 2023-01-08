@@ -54,7 +54,8 @@ class WILLocDataRemoteUDP(WILLocDataBase):
 
                     self.tracked_objects[trackerserial].pose = trackerpose;
                     if trackerbutton == 1:  # button is a trigger, sets a state, which is cleared elsewhere (was_button_pressed)
-                        self.tracked_objects[trackerserial].button = 1;
+                        self.tracked_objects[trackerserial].buttons['system'] = True;
+                        self.tracked_objects[trackerserial].buttons['trigger'] = True;
 
             sockreadable, _, _ = select.select([self.sock_trackerinfo], [], [], 0);
 

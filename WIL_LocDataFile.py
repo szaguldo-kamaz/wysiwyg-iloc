@@ -42,15 +42,30 @@ class WILLocDataFile(WILLocDataBase):
 
         while (time.time() - self.start_real_timestamp) > self.elapsed_filetime:
             trackerserial = self.dataline[1];
+            if trackerserial[0] == '*':
+                buttonline = True;
+                trackerserial = trackerserial[1:];
+            else:
+                buttonline = False;
             if trackerserial not in self.tracked_objects.keys():
                 sys.stderr.writelines("WIL_LocDataFile: WARNING: Unrecognized tracker: %s\n"%(trackerserial));
             else:
-                if self.datatype == 2:
-                    self.tracked_objects[trackerserial].pose = list(map(float, self.dataline[2:5])) + [0.0]*4;
-                    self.tracked_objects[trackerserial].pose_euler_deg = list(map(float, self.dataline[2:]));
+                if buttonline:
+                    self.tracked_objects[trackerserial].button['system'] = bool(self.dataline[2]);
+                    self.tracked_objects[trackerserial].button['menu'] = bool(self.dataline[3]);
+                    self.tracked_objects[trackerserial].button['grip'] = bool(self.dataline[4]);
+                    self.tracked_objects[trackerserial].button['trigger'] = float(self.dataline[5]);
+                    self.tracked_objects[trackerserial].button['trackpad_press'] = bool(self.dataline[6]);
+                    self.tracked_objects[trackerserial].button['trackpad_touch'] = bool(self.dataline[7]);
+                    self.tracked_objects[trackerserial].button['trackpad_x'] = float(self.dataline[8]);
+                    self.tracked_objects[trackerserial].button['trackpad_y'] = float(self.dataline[9]);
                 else:
-                    self.tracked_objects[trackerserial].pose = list(map(float, self.dataline[2:]));
-                    self.tracked_objects[trackerserial].pose_euler_deg = list(map(float, self.dataline[2:5])) + [0.0]*3;
+                    if self.datatype == 2:
+                        self.tracked_objects[trackerserial].pose = list(map(float, self.dataline[2:5])) + [0.0]*4;
+                        self.tracked_objects[trackerserial].pose_euler_deg = list(map(float, self.dataline[2:]));
+                    else:
+                        self.tracked_objects[trackerserial].pose = list(map(float, self.dataline[2:]));
+                        self.tracked_objects[trackerserial].pose_euler_deg = list(map(float, self.dataline[2:5])) + [0.0]*3;
 
             self.dataline = self.datafile.readline().strip().split(',');
             if self.dataline == ['']:
