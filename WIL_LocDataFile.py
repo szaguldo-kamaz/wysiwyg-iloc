@@ -39,12 +39,12 @@ class WILLocDataFile(WILLocDataBase):
         return self.update_poses_from_src_timebase(time.time());
 
 
-    def update_poses_from_src_timebase(self):
+    def update_poses_from_src_timebase(self, currenttime):
 
         if self.eofreached:
             return 0
 
-        while (time.time() - self.start_real_timestamp) > self.elapsed_filetime:
+        while (currenttime - self.start_real_timestamp) > self.elapsed_filetime:
             trackerserial = self.dataline[1];
             if trackerserial[0] == '*':
                 buttonline = True;
