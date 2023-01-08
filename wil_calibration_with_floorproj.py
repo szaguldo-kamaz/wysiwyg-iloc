@@ -258,9 +258,9 @@ while True:
                 individualtracker_rolloffset_trackerself  = wilobj.trackers[individualtrackermode_whichtracker].rolloffset_trackerself_tracker;
             needoffsetupdate = True;
 
-    if event in ["space:65", " "]:
-        individualtrackermode = False;
+    if event in ["BackSpace:22"]:
         needoffsetupdate = True;
+        individualtrackermode = False;
 
     if event in ["KP_Add:86", "plus:21", "equal:21", "+"] and not individualtrackermode:
         pixelratio += 5;
