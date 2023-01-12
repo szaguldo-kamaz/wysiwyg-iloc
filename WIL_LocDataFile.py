@@ -55,14 +55,14 @@ class WILLocDataFile(WILLocDataBase):
                 sys.stderr.writelines("WIL_LocDataFile: WARNING: Unrecognized tracker: %s\n"%(trackerserial));
             else:
                 if buttonline:
-                    self.tracked_objects[trackerserial].button['system'] = bool(self.dataline[2]);
-                    self.tracked_objects[trackerserial].button['menu'] = bool(self.dataline[3]);
-                    self.tracked_objects[trackerserial].button['grip'] = bool(self.dataline[4]);
-                    self.tracked_objects[trackerserial].button['trigger'] = float(self.dataline[5]);
-                    self.tracked_objects[trackerserial].button['trackpad_press'] = bool(self.dataline[6]);
-                    self.tracked_objects[trackerserial].button['trackpad_touch'] = bool(self.dataline[7]);
-                    self.tracked_objects[trackerserial].button['trackpad_x'] = float(self.dataline[8]);
-                    self.tracked_objects[trackerserial].button['trackpad_y'] = float(self.dataline[9]);
+                    self.tracked_objects[trackerserial].buttons['system'] = bool(int(self.dataline[2]));
+                    self.tracked_objects[trackerserial].buttons['menu'] = bool(int(self.dataline[3]));
+                    self.tracked_objects[trackerserial].buttons['grip'] = bool(int(self.dataline[4]));
+                    self.tracked_objects[trackerserial].buttons['trigger'] = float(self.dataline[5]);
+                    self.tracked_objects[trackerserial].buttons['trackpad_press'] = bool(int(self.dataline[6]));
+                    self.tracked_objects[trackerserial].buttons['trackpad_touch'] = bool(int(self.dataline[7]));
+                    self.tracked_objects[trackerserial].buttons['trackpad_x'] = float(self.dataline[8]);
+                    self.tracked_objects[trackerserial].buttons['trackpad_y'] = float(self.dataline[9]);
                 else:
                     if self.datatype == 2:
                         self.tracked_objects[trackerserial].pose = list(map(float, self.dataline[2:5])) + [0.0]*4;
