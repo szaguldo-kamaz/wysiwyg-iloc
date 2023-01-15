@@ -198,26 +198,33 @@ class WILLocDataBase:
         theta = math.atan2(y,x);
         return [ r, theta ]
 
+    # from: https://steamcommunity.com/app/250820/discussions/0/1728711392744037419/
+    # http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm
     def quattoeuler(self, q):
-        try:
-            # q = [ w, x, y, z ]
-            t2 = 2 * (q[0] * q[2] - q[3] * q[1]);
-            if t2 > 1.0:
-                if t2 > 1.01:
-                    print("T2over: ", t2);
-                t2 = 1.0;
-            if t2 < -1.0:
-                if t2 < -1.01:
-                    print("T2below: ", t2);
-                t2 = -1.0;
 
-            euler = [ math.atan2(2 * (q[0] * q[1] + q[2] * q[3]), 1 - 2 * (q[1] * q[1] + q[2] * q[2])),
-                      t2,
-                      math.atan2(2 * (q[0] * q[3] + q[1] * q[2]), 1 - 2 * (q[2] * q[2] + q[3] * q[3])) ];
-            return euler
-        except:
-            print("DEBUG BAD quat: ", q);
-            return False
+        [ qw, qx, qy, qz ] = q;
+
+        test = qx * qy + qz * qw;
+        if (test > 0.499):  # singularity at north pole
+            yaw = 2 * math.atan2(qx, qw);  # heading
+            pitch = math.pi / 2;  # attitude
+            roll = 0;  # bank
+
+        elif (test < -0.499):  # singularity at south pole
+            yaw = -2 * math.atan2(qx, qw);  # heading
+            pitch = -math.pi / 2;  # attitude
+            roll = 0;  # bank
+
+        else:
+            sqx = qx * qx;
+            sqy = qy * qy;
+            sqz = qz * qz;
+            yaw = math.atan2(2 * qy * qw - 2 * qx * qz, 1 - 2 * sqy - 2 * sqz);  # heading
+            pitch = math.asin(2 * test);  # attitude
+            roll = math.atan2(2 * qx * qw - 2 * qy * qz, 1 - 2 * sqx - 2 * sqz);  # bank
+
+        return [ yaw, roll, pitch ];
+
 
     def set_swapx(self, swapx):
         self.swapx = swapx;

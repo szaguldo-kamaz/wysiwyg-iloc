@@ -9,7 +9,7 @@
 #
 
 from WIL_LocDataBase import WILLocDataBase
-import time, struct, sys
+import time, struct, math, sys
 
 
 class WILLocDataFile(WILLocDataBase):
@@ -69,7 +69,7 @@ class WILLocDataFile(WILLocDataBase):
                         self.tracked_objects[trackerserial].pose_euler_deg = list(map(float, self.dataline[2:]));
                     else:
                         self.tracked_objects[trackerserial].pose = list(map(float, self.dataline[2:]));
-                        self.tracked_objects[trackerserial].pose_euler_deg = list(map(float, self.dataline[2:5])) + [0.0]*3;
+                        self.tracked_objects[trackerserial].pose_euler_deg = list(map(float, self.dataline[2:5])) + list(map(math.degrees, self.quattoeuler(list(map(float, self.dataline[5:9])))));
 
             self.dataline = self.datafile.readline().strip().split(',');
             if self.dataline == ['']:

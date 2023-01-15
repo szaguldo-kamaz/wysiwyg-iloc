@@ -6,7 +6,7 @@
 # https://github.com/szaguldo-kamaz/
 #
 
-import sys
+import sys, math
 import triad_openvr.triad_openvr
 from WIL_LocDataBase import WILLocDataBase
 
@@ -32,8 +32,10 @@ class WILLocDataSteamVR(WILLocDataBase):
         if self.verbose:
             print("\nBe sure to check that all your trackers were detected! They won't be added later on!\n");
 
+
     def __del__(self):
         pass
+
 
     def update_poses_from_src(self):
 
@@ -53,25 +55,21 @@ class WILLocDataSteamVR(WILLocDataBase):
             self.tracked_objects[trackerserial].buttons['trackpad_x'] = buttons['trackpad_x'];
             self.tracked_objects[trackerserial].buttons['trackpad_y'] = buttons['trackpad_y'];
 
+#            pose_euler = self.wil_triadopenvr.devices[self.serial_to_devname[trackerserial]].get_pose_euler();
+#            if pose_euler != None:
+#                [x, y, z, orx, orz, ory] = pose_euler;
+#                self.tracked_objects[trackerserial].pose_euler_deg = [x, z, y, orx, orz, ory];
+
             try:  # sometimes get_pose fails, with math errors (divby0, etc.)...
                 posequat = self.wil_triadopenvr.devices[self.serial_to_devname[trackerserial]].get_pose_quaternion();
-#                [x, y, z, qx, qy, qz, qw] = self.wil_triadopenvr.devices[self.serial_to_devname[trackerserial]].get_pose_quaternion();
-#                [x, y, z, roll, pitch, yaw] = self.wil_triadopenvr.devices[self.serial_to_devname[trackerserial]].get_pose_euler();
             except:
-                posequat = None; # sometimes get_pose also gives None
-            if posequat != None:
-                [x, y, z, qx, qy, qz, qw] = posequat;
-                self.tracked_objects[trackerserial].pose = [x, z, y, qx, qz, qy, qw];
-#                self.tracked_objects[trackerserial].timecode = time.time();
+                posequat = None;  # sometimes get_pose also gives None
 
-        # handle tracker button press event
-# ! Does not seem to supply the right event for sysbutton press
-#        self.wil_triadopenvr.poll_vr_events();
-#        trackbuttevents = self.wil_triadopenvr.get_trackerbuttonevent();
-#        if trackbuttevents != {}:
-#            for tbevent in trackbuttevents.keys():
-#                if trackbuttevents[tbevent] == 1:
-#                    self.tracked_objects[self.devname_to_serial[tbevent]]['button'] = 1;
+            if posequat != None:
+                [x, y, z, qw, qx, qy, qz] = posequat;
+                self.tracked_objects[trackerserial].pose = [x, z, y, qw, qx, qy, qz];
+                self.tracked_objects[trackerserial].pose_euler_deg = [x, z, y] + list(map(math.degrees, self.quattoeuler([qw, qx, qy, qz])));
+#                self.tracked_objects[trackerserial].timecode = time.time();
 
         return 0
 
