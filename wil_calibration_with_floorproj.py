@@ -9,6 +9,8 @@
 #  mouse scrollwheel with left button pressed: adjust tracker self yaw offset
 #  keys + - : adjust pixratio
 #  keys x y r : toggle swap x, y, yawdir
+#  key z : in invidivual tracker adjustment mode: take the selected tracker as the reference zero height
+#          in world adjustment mode: take the tracker with the lowest height as reference zero height
 #  key Esc : exit without saving calibration parameters
 #  key Enter : save calibration parameters and exit
 #
@@ -357,6 +359,14 @@ while True:
     if event in ["r:27", "r"] and not individualtrackermode:
         reverse_yawdir = not reverse_yawdir;
         needoffsetupdate = True;
+
+    if event in ["z:52", "z"]:
+        needoffsetupdate = True;
+        if individualtrackermode:
+            zoffset_world = -trackedobjs[individualtrackermode_whichtracker]['posraw'][2];
+            individualtrackermode = False;
+        else:
+            zoffset_world = -min([ trackedobjs[trackername]['posraw'][2] for trackername in trackernames ]);
 
     if event in (sg.WIN_CLOSED, 'Escape:9', 'Escape:27'):
         print("EXIT: Not saving calibration data!");
