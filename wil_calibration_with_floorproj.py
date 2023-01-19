@@ -17,7 +17,7 @@
 # https://github.com/szaguldo-kamaz/
 #
 
-import math, sys, datetime, os
+import math, sys, datetime, os, time
 import PySimpleGUI as sg
 from WIL import WIL
 from draw_rotated_things.draw_rotated_things import *
@@ -161,6 +161,9 @@ individualtrackermode = False;
 individualtrackermode_whichtracker = 0;
 individualtracker_yawoffset_trackerself = 1;
 paused = False;
+capture_to_file = False;
+capture_bgflash_counter = 0;
+capturefile = None;
 
 
 print("Waiting for all the tracked devices to appear...");
@@ -171,7 +174,37 @@ while not wilobj.all_poses_valid():
 
 print("I see all the tracked devices.");
 
+def gen_calibdata():
+        calibdata = "wxoff: %03.3f wyoff: %03.3f wzoff: %03.3f wyaw: %05.1f wpitch: %05.1f wroll: %05.1f wyaw_t: %05.1f wpitch_t: %05.1f wroll_t: %05.1f pixrat: %d swapx: %d swapy: %d revyaw: %d revpitch: %d revroll: %d\r\n"% \
+                     (xoffset_world, yoffset_world, zoffset_world,
+                      math.degrees(yawoffset_world), math.degrees(pitchoffset_world), math.degrees(rolloffset_world),
+                      math.degrees(yawoffset_trackerself), math.degrees(pitchoffset_trackerself), math.degrees(rolloffset_trackerself),
+                      pixelratio, swapx, swapy, reverse_yawdir, reverse_pitchdir, reverse_rolldir);
+        for trackername in trackernames:
+            if trackername[-4:] == '-PTR':  # exclude pointer trackers, as those are redundant
+                continue
+            trackcalibdata = wilobj.trackers[trackername].get_calibration_data_tracker();
+            calibdata += "tracker: %s xoff: %03.3f yoff: %03.3f zoff: %03.3f yawoff_t: %05.1f pitchoff_t: %05.1f rolloff_t: %05.1f\r\n"%(
+                wilobj.config.trackers[trackername]['serial'],
+                trackcalibdata[0], trackcalibdata[1], trackcalibdata[2],
+                math.degrees(trackcalibdata[3]), math.degrees(trackcalibdata[4]), math.degrees(trackcalibdata[5]) );
+
+        return calibdata
+
+
 while True:
+
+    if capture_bgflash_counter > 0:
+        capture_bgflash_counter -= 1;
+        if capture_bgflash_counter == 0:
+            graph.update(background_color = windowbackgroundcolor);
+            needoffsetupdate = True;
+            capture_to_file = True;
+            capturefilename = 'wil_data_q' + datetime.datetime.today().strftime("_%Y_%m_%d__%H-%M-%S") + '.csv';
+            capturefile = open(capturefilename, "w", newline="\n");
+            calibdatafile = open(capturefilename[:-4] + '__' + calibdata_filename, "w", newline="\n");
+            calibdatafile.write(gen_calibdata());
+            calibdatafile.close();
 
     event, values = window.read(1);
 
@@ -196,6 +229,7 @@ while True:
 
             trackedobjs[trackername]['posraw']      = wilobj.trackers[trackername].get_raw_position();
             trackedobjs[trackername]['oriraw']      = wilobj.trackers[trackername].get_raw_orientation_euler_degrees();
+            trackedobjs[trackername]['orirawq']     = wilobj.trackers[trackername].get_raw_orientation_quat();
             trackedobjs[trackername]['pos']         = wilobj.trackers[trackername].get_position();
             trackedobjs[trackername]['yawdeg']      = wilobj.trackers[trackername].get_yaw_degrees();
             trackedobjs[trackername]['yawrad']      = wilobj.trackers[trackername].get_yaw_radians();
@@ -204,6 +238,25 @@ while True:
             trackedobjs[trackername]['rolldeg']     = wilobj.trackers[trackername].get_roll_degrees();
             trackedobjs[trackername]['rollrad']     = wilobj.trackers[trackername].get_roll_radians();
             trackedobjs[trackername]['pospixel']    = wilobj.trackers[trackername].get_position_pixel();
+
+            if capture_to_file:
+                capturetime = time.time();
+                capturefile.write("%s,%s,%f,%f,%f,%f,%f,%f,%f\r\n"%(
+                        capturetime, wilobj.trackers[trackername].serial,
+                        trackedobjs[trackername]['posraw'][0], trackedobjs[trackername]['posraw'][1], trackedobjs[trackername]['posraw'][2],
+                        trackedobjs[trackername]['orirawq'][0], trackedobjs[trackername]['orirawq'][1], trackedobjs[trackername]['orirawq'][2], trackedobjs[trackername]['orirawq'][3]
+                    ));
+                capturefile.write("%s,*%s,%d,%d,%d,%f,%d,%d,%f,%f\r\n"%(
+                        capturetime, wilobj.trackers[trackername].serial,
+                        wilobj.trackers[trackername].buttons['system'],
+                        wilobj.trackers[trackername].buttons['menu'],
+                        wilobj.trackers[trackername].buttons['grip'],
+                        wilobj.trackers[trackername].buttons['trigger'],
+                        wilobj.trackers[trackername].buttons['trackpad_press'],
+                        wilobj.trackers[trackername].buttons['trackpad_touch'],
+                        wilobj.trackers[trackername].buttons['trackpad_x'],
+                        wilobj.trackers[trackername].buttons['trackpad_y']
+                    ));
 
             graph.delete_figure(trackedobjs[trackername]['plotobj']);
             graph.delete_figure(trackedobjs[trackername]['plotselectedobj']);
@@ -254,6 +307,14 @@ while True:
             else:  # pospixel is None
                 trackedobjs[trackername]['plotobj'] = 0;
 
+    # start/stop capture
+    if event in ["c:54", "c"]:
+        if capture_to_file:
+            capture_to_file = False;
+            capturefile.close();
+        else:
+            capture_bgflash_counter = 100;
+            graph.update(background_color = 'white');
 
     if event in ["1:10", "1", "2:11", "2", "3:12", "3", "4:13", "4", "5:14", "5", "6:15", "6", "7:16", "7", "8:17", "8", "9:18", "9", "0:19", "0"]:
         selectedtrackerno = int(event[0]) - 1;
@@ -302,19 +363,6 @@ while True:
         break
 
     if event in ("Return:36", "KP_Enter:104", "\n", "\r"):
-        calibdata = "wxoff: %03.3f wyoff: %03.3f wzoff: %03.3f wyaw: %05.1f wpitch: %05.1f wroll: %05.1f wyaw_t: %05.1f wpitch_t: %05.1f wroll_t: %05.1f pixrat: %d swapx: %d swapy: %d revyaw: %d revpitch: %d revroll: %d\r\n"% \
-                     (xoffset_world, yoffset_world, zoffset_world,
-                      math.degrees(yawoffset_world), math.degrees(pitchoffset_world), math.degrees(rolloffset_world),
-                      math.degrees(yawoffset_trackerself), math.degrees(pitchoffset_trackerself), math.degrees(rolloffset_trackerself),
-                      pixelratio, swapx, swapy, reverse_yawdir, reverse_pitchdir, reverse_rolldir);
-        for trackername in trackernames:
-            if trackername[-4:] == '-PTR':  # exclude pointer trackers, as those are redundant
-                continue
-            trackcalibdata = wilobj.trackers[trackername].get_calibration_data_tracker();
-            calibdata += "tracker: %s xoff: %03.3f yoff: %03.3f zoff: %03.3f yawoff_t: %05.1f pitchoff_t: %05.1f rolloff_t: %05.1f\r\n"%(
-                wilobj.config.trackers[trackername]['serial'],
-                trackcalibdata[0], trackcalibdata[1], trackcalibdata[2],
-                math.degrees(trackcalibdata[3]), math.degrees(trackcalibdata[4]), math.degrees(trackcalibdata[5]) );
 
         if os.path.exists(calibdata_filename):
             calibdata_filename_backup_timestamp = datetime.datetime.today().strftime("_%Y_%m_%d__%H-%M-%S");
@@ -326,6 +374,7 @@ while True:
             print("Backing up previous calibration parameters file as:", calibdata_filename_backup);
             os.rename(calibdata_filename, calibdata_filename_backup);
 
+        calibdata = gen_calibdata();
         print("Saving calibration parameters: ", calibdata);
         calibdatafile = open(calibdata_filename, "w", newline="\n");
         calibdatafile.write(calibdata);
@@ -407,8 +456,9 @@ while True:
             else:               swapy_char = ' ';
             if reverse_yawdir:  revyaw_char = '!';
             else:               revyaw_char = ' ';
-            offset_text = "Offset: %03.3f%c %03.3f%c %03.3f Yw/Yt:%05.1f/%05.1f%c Pw/Pt:%05.1f/%05.1f Rw/Rt:%05.1f/%05.1f pixrat: %d"% \
-                          (xoffset_world, swapx_char, yoffset_world, swapy_char, zoffset_world,
+            offset_text = "%sOffset: %03.3f%c %03.3f%c %03.3f Yw/Yt:%05.1f/%05.1f%c Pw/Pt:%05.1f/%05.1f Rw/Rt:%05.1f/%05.1f pixrat: %d"% \
+                          (["", "CAPTURING "][int(capture_to_file)],
+                           xoffset_world, swapx_char, yoffset_world, swapy_char, zoffset_world,
                            math.degrees(yawoffset_world), math.degrees(yawoffset_trackerself), revyaw_char,
                            math.degrees(pitchoffset_world), math.degrees(pitchoffset_trackerself),
                            math.degrees(rolloffset_world), math.degrees(rolloffset_trackerself),
@@ -421,8 +471,11 @@ while True:
                                    reverse_yawdir, reverse_pitchdir, reverse_rolldir);
 
         graph.delete_figure(offset_label);
-        offset_label = graph.draw_text(offset_text, [540, 20], color='#FFFFFF', font=statusfont);
+        offset_label = graph.draw_text(offset_text, [20, 20], color='#FFFFFF', font=statusfont, text_location = sg.TEXT_LOCATION_LEFT);
         needoffsetupdate = False;
 
 
 window.close();
+
+if capturefile != None:
+    capturefile.close();
