@@ -318,6 +318,7 @@ while True:
             capture_bgflash_counter = 100;
             graph.update(background_color = 'white');
 
+    # choose individual trackers for calibration
     if event in ["1:10", "1", "2:11", "2", "3:12", "3", "4:13", "4", "5:14", "5", "6:15", "6", "7:16", "7", "8:17", "8", "9:18", "9", "0:19", "0"]:
         selectedtrackerno = int(event[0]) - 1;
         if selectedtrackerno == -1:
@@ -336,6 +337,7 @@ while True:
                 individualtracker_rolloffset_trackerself  = wilobj.trackers[individualtrackermode_whichtracker].rolloffset_trackerself_tracker;
             needoffsetupdate = True;
 
+    # back to world calibration (from individual tracker calibration)
     if event in ["BackSpace:22"]:
         needoffsetupdate = True;
         individualtrackermode = False;
