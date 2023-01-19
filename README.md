@@ -16,19 +16,22 @@ Calibration is very simple and easy, just run *wil_calibration_with_floorproj.py
 ![calib](https://user-images.githubusercontent.com/86873213/169096461-a1cb6ec3-5acd-4535-baee-974a8c93cbdc.gif)
 
 Usage:  
-&nbsp; mouse dragging with left button pressed: adjust x,y offset  
-&nbsp; mouse scrollwheel: adjust world orientation offset  
-&nbsp; mouse scrollwheel with left button pressed: adjust tracker orientation offset  
-&nbsp; keys + - : adjust pixel ratio  
-&nbsp; keys x y r : toggle swap x, y, rotdir  
-&nbsp; key z : in invidivual tracker adjustment mode: take the selected tracker as the reference zero height; in world adjustment mode: take the tracker with the lowest height as reference zero height  
-&nbsp; key c : start/stop pose data capture to file  
-&nbsp; keys 1..0: select tracker no. 1..10 for individual adjusment  
-&nbsp; key Space: select world / unselect tracker  
-&nbsp; key Esc : exit without saving calibration parameters  
-&nbsp; key Enter : save calibration parameters and exit  
+&nbsp; mouse **dragging** with **left button** pressed: adjust x,y offset  
+&nbsp; mouse **scrollwheel**: adjust world orientation offset  
+&nbsp; mouse **scrollwheel** with **left button** pressed: adjust tracker orientation offset  
+&nbsp; keys **+ -** : adjust pixel ratio  
+&nbsp; keys **x y r** : toggle swap x, y, rotdir  
+&nbsp; key **z** : in invidivual tracker adjustment mode: take the selected tracker as the reference zero height
+&nbsp; key **z** : in world adjustment mode: take the tracker with the lowest height as reference zero height  
+&nbsp; key **c** : start/stop pose data capture to file  
+&nbsp; keys **1..0**: select tracker no. 1..10 for individual adjusment  
+&nbsp; key **Space**: pause / unpause  
+&nbsp; key **BackSpace**: select world / unselect individually adjusted tracker  
+&nbsp; key **Esc** : exit without saving calibration parameters  
+&nbsp; key **Enter** : save calibration parameters and exit  
 
 First, try to adjust the world offsets, then (if required) adjust the trackers individually (use the 1..0 keys to select, then mouse drag + scrollwheel).
+If you place one tracker on the floor directly, then by selecting that tracker and pressing "z", the height of that selected tracker will be used as the reference height for the world (zero).
 By default the calibration parameters are stored in a file called *wil_calibparams.txt* (be sure to copy or symlink your previous calibparams file when using recorded data).
 To adjust heights (z axis), modify the saved *wil_calibparams.txt* file manually.
 If you would like to use the adjusted poses in your application, please see *wil_talker_** as examples.
