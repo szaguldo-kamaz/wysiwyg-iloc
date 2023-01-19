@@ -11,6 +11,7 @@
 #  keys x y r : toggle swap x, y, yawdir
 #  key z : in invidivual tracker adjustment mode: take the selected tracker as the reference zero height
 #          in world adjustment mode: take the tracker with the lowest height as reference zero height
+#  key c : start/stop pose data capture to file
 #  key Esc : exit without saving calibration parameters
 #  key Enter : save calibration parameters and exit
 #

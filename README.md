@@ -6,7 +6,10 @@ Here's a simple demonstration where a human and a mobile robot ([Vstone MegaRove
 
 ![move](https://user-images.githubusercontent.com/86873213/169096483-7b093dd0-dec5-4b11-aea6-27626fd298e0.gif)
 
-For gathering the raw pose data HTC Vive trackers were used. The WIL system transforms the raw pose data to be aligned with the real space (previously calibrated) and generates the image to be projected. Raw pose data sources supported: SteamVR, [libsurvive](https://github.com/cntools/libsurvive), ROS messages, UDP packets (see "RemoteUDP" files). See *wil_config.py* for configuring which one to use. IDs of the trackers (LHR-xxxxxxxx) you want to use should be listed in *wil_config.py*. Vive controllers should also work.
+For gathering the raw pose data HTC Vive Trackers / Controllers were used. The WIL system transforms the raw pose data to be aligned with the real space (previously calibrated) and generates the image to be projected.
+Raw pose data sources supported: SteamVR, [libsurvive](https://github.com/cntools/libsurvive), ROS messages, UDP packets (see "RemoteUDP" files).
+See *wil_config.py* for configuring which one to use. IDs of the trackers (LHR-xxxxxxxx) you want to use should be listed in *wil_config.py*.
+Buttons on the Vive Controller are also supported.
 
 Calibration is very simple and easy, just run *wil_calibration_with_floorproj.py*, and you should see something similar:
 
@@ -16,8 +19,10 @@ Usage:
 &nbsp; mouse dragging with left button pressed: adjust x,y offset  
 &nbsp; mouse scrollwheel: adjust world orientation offset  
 &nbsp; mouse scrollwheel with left button pressed: adjust tracker orientation offset  
-&nbsp; keys + - : adjust pixratio  
+&nbsp; keys + - : adjust pixel ratio  
 &nbsp; keys x y r : toggle swap x, y, rotdir  
+&nbsp; key z : in invidivual tracker adjustment mode: take the selected tracker as the reference zero height; in world adjustment mode: take the tracker with the lowest height as reference zero height  
+&nbsp; key c : start/stop pose data capture to file  
 &nbsp; keys 1..0: select tracker no. 1..10 for individual adjusment  
 &nbsp; key Space: select world / unselect tracker  
 &nbsp; key Esc : exit without saving calibration parameters  
