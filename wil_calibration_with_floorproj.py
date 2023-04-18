@@ -150,6 +150,8 @@ for tracker in trackernames:
     trackedobjs[tracker]['plotorimarkobj']  = 0;
     trackedobjs[tracker]['plotselectedobj'] = 0;
     trackedobjs[tracker]['plotlabelobj']    = 0;
+    trackedobjs[tracker]['plotoutsidexobj']  = 0;
+    trackedobjs[tracker]['plotoutsideyobj']  = 0;
     trackedobjs[tracker]['plotlabeloffset'] = 50;
     trackedobjs[tracker]['plotlabeltext']   = wilobj.config.trackers[tracker]['labeltext'];
     trackedobjs[tracker]['color']           = wilobj.config.trackers[tracker]['color'];
@@ -266,11 +268,61 @@ while True:
             graph.delete_figure(trackedobjs[trackername]['plotoriobj']);
             graph.delete_figure(trackedobjs[trackername]['plotorimarkobj']);
             graph.delete_figure(trackedobjs[trackername]['plotlabelobj']);
+            graph.delete_figure(trackedobjs[trackername]['plotoutsidexobj']);
+            graph.delete_figure(trackedobjs[trackername]['plotoutsideyobj']);
 
             if trackedobjs[trackername]['pospixel'] != None:
 
                 trackedobjs[trackername]['pospixel'][0] = trackedobjs[trackername]['pospixel'][0] + wilobj.config.playareapixels[0]/2;
                 trackedobjs[trackername]['pospixel'][1] = trackedobjs[trackername]['pospixel'][1] + wilobj.config.playareapixels[1]/2;
+
+                # draw thick lines for giving a hint when the sensed positions are outside of the playarea
+                # vertical axis
+                if not (0 < trackedobjs[trackername]['pospixel'][0] < wilobj.config.playareapixels[0]):
+
+                    if trackedobjs[trackername]['pospixel'][1] < 40:
+                        plotoutsidexbar_posy_top = 0;
+                        plotoutsidexbar_posy_bottom = 80;
+                    elif trackedobjs[trackername]['pospixel'][1] > (wilobj.config.playareapixels[1] - 40):
+                        plotoutsidexbar_posy_top = wilobj.config.playareapixels[1] - 80;
+                        plotoutsidexbar_posy_bottom = wilobj.config.playareapixels[1];
+                    else:
+                        plotoutsidexbar_posy_top = trackedobjs[trackername]['pospixel'][1] - 40;
+                        plotoutsidexbar_posy_bottom = trackedobjs[trackername]['pospixel'][1] + 40;
+
+                    if trackedobjs[trackername]['pospixel'][0] < 0:
+                        plotoutsidexbar_posx = 15;
+                    else:
+                        plotoutsidexbar_posx = wilobj.config.playareapixels[0] - 15;
+
+                    trackedobjs[trackername]['plotoutsidexobj'] = graph.draw_line(
+                        (plotoutsidexbar_posx, plotoutsidexbar_posy_top),
+                        (plotoutsidexbar_posx, plotoutsidexbar_posy_bottom),
+                        trackedobjs[trackername]['color'], width=30
+                    );
+                # horiziontal axis
+                if not (0 < trackedobjs[trackername]['pospixel'][1] < wilobj.config.playareapixels[1]):
+
+                    if trackedobjs[trackername]['pospixel'][0] < 40:
+                        plotoutsidexbar_posx_left = 0;
+                        plotoutsidexbar_posx_right = 80;
+                    elif trackedobjs[trackername]['pospixel'][0] > (wilobj.config.playareapixels[0] - 40):
+                        plotoutsidexbar_posx_left = wilobj.config.playareapixels[0] - 80;
+                        plotoutsidexbar_posx_right = wilobj.config.playareapixels[0];
+                    else:
+                        plotoutsidexbar_posx_left = trackedobjs[trackername]['pospixel'][0] - 40;
+                        plotoutsidexbar_posx_right = trackedobjs[trackername]['pospixel'][0] + 40;
+
+                    if trackedobjs[trackername]['pospixel'][1] < 0:
+                        plotoutsidexbar_posy = 15;
+                    else:
+                        plotoutsidexbar_posy = wilobj.config.playareapixels[1] - 15;
+
+                    trackedobjs[trackername]['plotoutsideyobj'] = graph.draw_line(
+                        (plotoutsidexbar_posx_left, plotoutsidexbar_posy),
+                        (plotoutsidexbar_posx_right, plotoutsidexbar_posy),
+                        trackedobjs[trackername]['color'], width=30
+                    );
 
                 if trackedobjs[trackername]['pospixel'][1] < trackedobjs[trackername]['plotsize'] + 80:
                     trackedobjs[trackername]['plotlabeloffset'] = trackedobjs[trackername]['plotsize'] + 40;
