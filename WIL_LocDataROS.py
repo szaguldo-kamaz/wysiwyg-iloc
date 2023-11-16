@@ -16,39 +16,39 @@ class WILLocDataROS(WILLocDataBase):
     class WILLocDataROSsubscriber:
 
         def __init__(self, topic, msgtype):
-            self.rossub = rospy.Subscriber(topic, msgtype, self.ros_get_pose);
-            self.pose = None;
+            self.rossub = rospy.Subscriber(topic, msgtype, self.ros_get_pose)
+            self.pose = None
 
         def ros_get_pose(self, rosmsg):
-            pose_pos = rosmsg.pose.pose.position;
-            pose_ori = rosmsg.pose.pose.orientation;
-            self.pose = [ pose_pos.x, pose_pos.y, pose_pos.z, pose_ori.x, pose_ori.y, pose_ori.z, pose_ori.w ];
+            pose_pos = rosmsg.pose.pose.position
+            pose_ori = rosmsg.pose.pose.orientation
+            self.pose = [ pose_pos.x, pose_pos.y, pose_pos.z, pose_ori.x, pose_ori.y, pose_ori.z, pose_ori.w ]
 
         def get_pose(self):
-            return self.pose;
+            return self.pose
 
 
     def __init__(self, roomsize):
-        WILLocDataBase.__init__(self, roomsize);
-        self.ros_subscribers = {};
-        rospy.init_node('wil');
+        WILLocDataBase.__init__(self, roomsize)
+        self.ros_subscribers = {}
+        rospy.init_node('wil')
 
     def update_poses_from_src(self):
 
         for serial in self.ros_subscribers.keys():
-            self.tracked_objects[serial].pose = self.ros_subscribers[serial].get_pose();
-#            self.tracked_objects[serial].timecode = time.time();
+            self.tracked_objects[serial].pose = self.ros_subscribers[serial].get_pose()
+#            self.tracked_objects[serial].timecode = time.time()
 # add button support later...
-#            self.tracked_objects[serial].button = 0;
+#            self.tracked_objects[serial].button = 0
 
         return 0
 
     def add_tracker_by_serial(self, trackerserial):
         if trackerserial not in self.tracked_objects.keys():
-            topic = '/vive/%s_pose'%(trackerserial.replace('-','_'));
-#            msgtype = Pose;
-            msgtype = PoseWithCovarianceStamped;
-            self.ros_subscribers[trackerserial] = self.WILLocDataROSsubscriber(topic, msgtype);
-            self.tracked_objects[trackerserial] = self.WILTracker(trackerserial, self);
-            self.all_tracked_objs_have_valid_pose = False;
+            topic = '/vive/%s_pose'%(trackerserial.replace('-','_'))
+#            msgtype = Pose
+            msgtype = PoseWithCovarianceStamped
+            self.ros_subscribers[trackerserial] = self.WILLocDataROSsubscriber(topic, msgtype)
+            self.tracked_objects[trackerserial] = self.WILTracker(trackerserial, self)
+            self.all_tracked_objs_have_valid_pose = False
             return self.tracked_objects[trackerserial]
